@@ -16,14 +16,20 @@ const style = {
   boxShadow: 24,
   p: 4,
 };
-
+interface UpdateInfo {
+  releaseName: string;
+  releaseNotes: string;
+  releaseDate: string;
+  updateURL: string;
+}
 function App() {
   const [isUpdate, setIsUpdate] = React.useState(true);
   const [updateMessage, setUpdateMessage] = useState<string | null>(null);
   useEffect(() => {
     // Lắng nghe sự kiện 'update_available'
-    window.electronAPI.onUpdateAvailable((message: string) => {
-      setUpdateMessage(message);
+    window.electronAPI.onUpdateAvailable((event: any, info: UpdateInfo) => {
+      console.log('update_available', info);
+      // setUpdateMessage(message);
     });
 
     // Lắng nghe sự kiện 'update_downloaded'

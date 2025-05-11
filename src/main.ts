@@ -3,16 +3,41 @@ import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { autoUpdater } from 'electron-updater';
 import fs from 'fs';
-import { updateElectronApp } from 'update-electron-app';
+import { updateElectronApp, IUpdateInfo } from 'update-electron-app';
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
 }
+const createAppUpdateConfig = () => {
+  const appUpdatePath = path.join(process.resourcesPath, 'app-update.yml');
+  if (!fs.existsSync(appUpdatePath)) {
+    const content = `
+provider: github
+owner: pillrock
+repo: AutoLogin-ChanhCity
+`.trim();
+    fs.writeFileSync(appUpdatePath, content, 'utf8');
+  } else {
+    console.log(`app-update.yml already exists at ${appUpdatePath}`);
+  }
+};
 
 // Tự động kiểm tra cập nhật
 updateElectronApp({
-  repo: 'pillrock/AutoLogin-ChanhCity', // Repository GitHub của bạn
-  updateInterval: '1 hour', // Kiểm tra cập nhật mỗi giờ
+  repo: 'pillrock/AutoLogin-ChanhCity',
+  updateInterval: '1 hour',
+  notifyUser: true,
+  onNotifyUser: (info: IUpdateInfo) => {
+    if (mainWindow) {
+      // Gửi thông tin cập nhật đến renderer process
+      mainWindow.webContents.send('update-available', {
+        releaseName: info.releaseName,
+        releaseNotes: info.releaseNotes,
+        releaseDate: info.releaseDate.toISOString(),
+        updateURL: info.updateURL,
+      });
+    }
+  },
 });
 const logFile = path.join(app.getPath('userData'), 'update-log.txt');
 const log = (message: string) => {
@@ -47,6 +72,7 @@ const createWindow = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', () => {
+  createAppUpdateConfig();
   createWindow();
   autoUpdater.on('update-available', () => {
     log('Update available');

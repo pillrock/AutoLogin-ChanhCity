@@ -16,7 +16,7 @@ function PathSelector() {
         <input
           value={path}
           readOnly
-          placeholder="Chọn đường dẫn..."
+          placeholder="Chọn đường dẫn .EXE ở đây..."
           className="flex-1 rounded border border-blue-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <Button variant="contained" color="primary" onClick={handleBrowse}>
