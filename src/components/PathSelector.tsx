@@ -17,7 +17,7 @@ function PathSelector() {
           value={path}
           readOnly
           placeholder="Chọn đường dẫn..."
-          className="flex-1 rounded border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 rounded border border-blue-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <Button variant="contained" color="primary" onClick={handleBrowse}>
           Duyệt

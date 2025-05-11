@@ -2,11 +2,22 @@ import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { autoUpdater } from 'electron-updater';
+import fs from 'fs';
+import { updateElectronApp } from 'update-electron-app';
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
 }
 
+// Tự động kiểm tra cập nhật
+updateElectronApp({
+  repo: 'pillrock/AutoLogin-ChanhCity', // Repository GitHub của bạn
+  updateInterval: '1 hour', // Kiểm tra cập nhật mỗi giờ
+});
+const logFile = path.join(app.getPath('userData'), 'update-log.txt');
+const log = (message: string) => {
+  fs.appendFileSync(logFile, `${new Date().toISOString()} - ${message}\n`);
+};
 let mainWindow: BrowserWindow | null = null;
 const createWindow = () => {
   // Create the browser window.
@@ -28,6 +39,7 @@ const createWindow = () => {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+  log('Checking for updates...');
   autoUpdater.checkForUpdatesAndNotify();
 };
 
@@ -37,11 +49,17 @@ const createWindow = () => {
 app.on('ready', () => {
   createWindow();
   autoUpdater.on('update-available', () => {
+    log('Update available');
     mainWindow?.webContents.send('update_available');
   });
 
   autoUpdater.on('update-downloaded', () => {
-    mainWindow?.webContents.send('update_downloaded');
+    log('Update downloaded');
+    mainWindow?.webContents.send('update_downloaded', 'Bản cập nhật đã được tải xuống.');
+  });
+
+  autoUpdater.on('error', (error) => {
+    log(`Update error: ${error.message}`);
   });
 });
 

@@ -6,7 +6,8 @@ import { MakerRpm } from '@electron-forge/maker-rpm';
 import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
-
+import dotenv from 'dotenv';
+dotenv.config();
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
@@ -48,6 +49,19 @@ const config: ForgeConfig = {
       [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
       [FuseV1Options.OnlyLoadAppFromAsar]: true,
     }),
+  ],
+
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'pillrock', // Tên tài khoản GitHub của bạn
+          name: 'AutoLogin-ChanhCity', // Tên repository
+        },
+        prerelease: false, // Đặt `true` nếu bạn muốn phát hành bản thử nghiệm
+      },
+    },
   ],
 };
 
