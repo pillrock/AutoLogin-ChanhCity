@@ -3,6 +3,8 @@ import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { autoUpdater } from 'electron-updater';
 import fs from 'fs';
+import dotenv from 'dotenv';
+dotenv.config();
 import { updateElectronApp, IUpdateInfo } from 'update-electron-app';
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -13,8 +15,8 @@ const createAppUpdateConfig = () => {
   if (!fs.existsSync(appUpdatePath)) {
     const content = `
 provider: github
-owner: pillrock
-repo: AutoLogin-ChanhCity
+owner: ${process.env.GITHUB_OWNER}
+repo: ${process.env.GITHUB_REPO}
 `.trim();
     fs.writeFileSync(appUpdatePath, content, 'utf8');
   } else {
@@ -22,23 +24,6 @@ repo: AutoLogin-ChanhCity
   }
 };
 
-// Tự động kiểm tra cập nhật
-updateElectronApp({
-  repo: 'pillrock/AutoLogin-ChanhCity',
-  updateInterval: '1 hour',
-  notifyUser: true,
-  onNotifyUser: (info: IUpdateInfo) => {
-    if (mainWindow) {
-      // Gửi thông tin cập nhật đến renderer process
-      mainWindow.webContents.send('update-available', {
-        releaseName: info.releaseName,
-        releaseNotes: info.releaseNotes,
-        releaseDate: info.releaseDate.toISOString(),
-        updateURL: info.updateURL,
-      });
-    }
-  },
-});
 const logFile = path.join(app.getPath('userData'), 'update-log.txt');
 const log = (message: string) => {
   fs.appendFileSync(logFile, `${new Date().toISOString()} - ${message}\n`);

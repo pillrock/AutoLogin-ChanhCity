@@ -60,6 +60,7 @@ const config: ForgeConfig = {
           name: 'AutoLogin-ChanhCity', // Tên repository
         },
         prerelease: false, // Đặt `true` nếu bạn muốn phát hành bản thử nghiệm
+        authToken: process.env.GITHUB_TOKEN,
       },
     },
   ],

@@ -1,7 +1,7 @@
 {
   "name": "auto_login_chanhcity",
   "productName": "auto_login_chanhcity",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "My Electron application description",
   "main": ".vite/build/main.js",
   "scripts": {

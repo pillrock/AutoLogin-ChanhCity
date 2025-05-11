@@ -27,13 +27,14 @@ function App() {
   const [updateMessage, setUpdateMessage] = useState<string | null>(null);
   useEffect(() => {
     // Lắng nghe sự kiện 'update_available'
-    window.electronAPI.onUpdateAvailable((event: any, info: UpdateInfo) => {
-      console.log('update_available', info);
-      // setUpdateMessage(message);
+    window.electronAPI.onUpdateAvailable((message: string) => {
+      console.log('update_available', message);
+      setUpdateMessage(message);
     });
 
     // Lắng nghe sự kiện 'update_downloaded'
     window.electronAPI.onUpdateDownloaded((message: string) => {
+      console.log('update_available', message);
       setUpdateMessage(message);
     });
   }, []);
