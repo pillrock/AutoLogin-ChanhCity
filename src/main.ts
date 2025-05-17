@@ -9,7 +9,7 @@ if (started) {
   app.quit();
 }
 updateElectronApp({
-  repo: process.env.GITHUB_REPO, // Repository GitHub của bạn
+  repo: 'pillrock/VietNam-Legacy', 
   updateInterval: '1 hour', // Kiểm tra cập nhật mỗi giờ
 });
 console.log(__dirname);
