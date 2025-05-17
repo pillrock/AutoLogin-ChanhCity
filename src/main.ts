@@ -38,6 +38,13 @@ const createWindow = () => {
   mainWindow.maximize();
   mainWindow.setFullScreenable(false);
 
+  // Gửi trạng thái ban đầu ngay sau khi tạo cửa sổ
+  mainWindow.webContents.on('did-finish-load', () => {
+    const isMaximized = Boolean(mainWindow.isMaximized());
+    console.log('Sending initial window state:', isMaximized);
+    mainWindow.webContents.send('window-state-changed', isMaximized);
+  });
+
   // and load the index.html of the app.
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
@@ -55,6 +62,7 @@ const createWindow = () => {
 
   // Window controls
   ipcMain.on('window-control', (_, action) => {
+    console.log('Received window control:', action);
     switch (action) {
       case 'minimize':
         mainWindow.minimize();
@@ -62,14 +70,35 @@ const createWindow = () => {
       case 'maximize':
         if (mainWindow.isMaximized()) {
           mainWindow.unmaximize();
+          mainWindow.setSize(800, 700);
+          mainWindow.webContents.send('window-state-changed', false);
         } else {
           mainWindow.maximize();
+          mainWindow.webContents.send('window-state-changed', true);
         }
         break;
       case 'close':
         mainWindow.close();
         break;
     }
+  });
+
+  // Window state handlers
+  ipcMain.on('window-get-state', () => {
+    const isMaximized = Boolean(mainWindow.isMaximized());
+    console.log('Sending window state on request:', isMaximized);
+    mainWindow.webContents.send('window-state-changed', isMaximized);
+  });
+
+  // Thêm event listener cho sự kiện maximize/unmaximize
+  mainWindow.on('maximize', () => {
+    console.log('Window maximized, sending state: true');
+    mainWindow.webContents.send('window-state-changed', true);
+  });
+
+  mainWindow.on('unmaximize', () => {
+    console.log('Window unmaximized, sending state: false');
+    mainWindow.webContents.send('window-state-changed', false);
   });
 
   // Game management

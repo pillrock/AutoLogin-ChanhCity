@@ -6,10 +6,27 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.send(channel, data);
     },
     on: (channel: string, func: (...args: any[]) => void) => {
-      ipcRenderer.on(channel, (event, ...args) => func(...args));
+      const subscription = (_event: any, ...args: any[]) => {
+        console.log('Preload received event:', channel, args);
+        const value = args[0];
+        func(value);
+      };
+      ipcRenderer.on(channel, subscription);
+      return () => {
+        ipcRenderer.removeListener(channel, subscription);
+      };
     },
     invoke: (channel: string, data: any) => {
       return ipcRenderer.invoke(channel, data);
     },
+    removeListener: (channel: string, func: (...args: any[]) => void) => {
+      ipcRenderer.removeListener(channel, func);
+    }
   },
+  window: {
+    getState: () => {
+      console.log('Preload: Requesting window state');
+      ipcRenderer.send('window-get-state');
+    }
+  }
 });
