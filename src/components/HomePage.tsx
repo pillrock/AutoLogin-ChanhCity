@@ -1,16 +1,16 @@
 import React from 'react';
 import GameCard from './GameCard';
 import NewsCard from './NewsCard';
-import fivem from '../assets/images/fivem.png'
-import discord from  '../assets/images/discord.png'
+import fivem from '../assets/images/fivem.png';
+import discord from '../assets/images/discord.png';
 const HomePage: React.FC = () => {
   return (
-    <div className="w-full h-full p-6 overflow-y-auto">
-      <div className="grid xl:grid-cols-2 md:grid-cols-1 gap-6">
+    <div className="h-full w-full overflow-y-auto p-6">
+      <div className="grid gap-6 md:grid-cols-1 xl:grid-cols-2">
         {/* Featured Games Section */}
         <div className="space-y-4">
-          <h2 className="text-base font-medium text-neon-blue">LIÊN KẾT</h2>
-          <div className="grid xl:grid-cols-1 md:grid-cols-1 gap-4">
+          <h2 className="text-base font-medium">LIÊN KẾT</h2>
+          <div className="grid gap-4 md:grid-cols-1 xl:grid-cols-1">
             <GameCard
               title="Tải FiveM"
               image={fivem}
@@ -28,7 +28,7 @@ const HomePage: React.FC = () => {
 
         {/* Latest News Section */}
         <div className="space-y-4">
-          <h2 className="text-base font-medium text-neon-pink">TIN TỨC</h2>
+          <h2 className="text-base font-medium">TIN TỨC</h2>
           <div className="space-y-4">
             <NewsCard
               title="Bản Cập nhật VietNam Legacy 1.0.3"
@@ -39,7 +39,6 @@ const HomePage: React.FC = () => {
                 + UI trang chủ
                 `}
             />
-            
           </div>
         </div>
       </div>
@@ -47,4 +46,4 @@ const HomePage: React.FC = () => {
   );
 };
 
-export default HomePage; 
+export default HomePage;
