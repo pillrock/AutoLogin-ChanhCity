@@ -1,132 +1,119 @@
 import React from 'react';
-
+import {
+  FaDiscord,
+  FaFacebook,
+  FaYoutube,
+  FaUsers,
+  FaClock,
+  FaCode,
+} from 'react-icons/fa';
+import bg from '../assets/images/bg.avif';
 const ServerPage: React.FC = () => {
-  const servers = [
-    {
-      name: "Los Santos Nightlife",
-      players: "128/150",
-      ping: 45,
-      status: "online",
-      map: "Downtown LS",
-      difficulty: "Hard"
+  const serverInfo = {
+    name: 'VIETNAM',
+    subName: 'LEGACY',
+    description: 'Khám phá thế giới mở rộng lớn, tự do, đậm chất Việt Nam.',
+    features: [
+      { title: 'Nhiệm vụ', icon: <FaCode />, desc: '100+ nhiệm vụ' },
+      { title: 'Kinh tế', icon: <FaUsers />, desc: 'Thị trường tự do' },
+      { title: 'Cộng đồng', icon: <FaDiscord />, desc: 'Thân thiện, hỗ trợ' },
+      { title: 'Cập nhật', icon: <FaClock />, desc: 'Liên tục' },
+    ],
+    stats: {
+      players: '1000+',
+      uptime: '99.9%',
+      version: '1.0.0',
     },
-    {
-      name: "Night City Outskirts",
-      players: "95/150",
-      ping: 32,
-      status: "online",
-      map: "Sandy Shores",
-      difficulty: "Medium"
-    },
-    {
-      name: "Chrome & Neon",
-      players: "150/150",
-      ping: 28,
-      status: "full",
-      map: "Vespucci Beach",
-      difficulty: "Extreme"
-    },
-    {
-      name: "Corpo Wars",
-      players: "63/150",
-      ping: 19,
-      status: "online",
-      map: "Vinewood Heights",
-      difficulty: "Medium"
-    },
-    {
-      name: "Street Runners",
-      players: "112/150",
-      ping: 37,
-      status: "online",
-      map: "Mirror Park",
-      difficulty: "Easy"
-    }
+  };
+
+  const serverImages = [
+    { url: bg, title: 'Thành phố' },
+    { url: bg, title: 'Vùng quê' },
+    { url: bg, title: 'Bãi biển' },
+  ];
+
+  const developers = [
+    { name: 'Nguyễn Văn A', role: 'Lead Dev', avatar: '/images/team/dev1.jpg' },
+    { name: 'Trần Thị B', role: 'Designer', avatar: '/images/team/dev2.jpg' },
+    { name: 'Lê Văn C', role: 'Community', avatar: '/images/team/dev3.jpg' },
   ];
 
   return (
-    <div className="w-full h-full overflow-y-auto">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-gta text-neon-yellow tracking-wide">SERVER BROWSER</h1>
-          <div className="flex space-x-2">
-            <button className="bg-black/40 hover:bg-black/60 border border-neon-blue text-neon-blue text-sm px-4 py-1 rounded transition-all duration-300">
-              REFRESH
-            </button>
-            <button className="bg-black/40 hover:bg-black/60 border border-neon-blue text-neon-blue text-sm px-4 py-1 rounded transition-all duration-300">
-              FILTER
-            </button>
+    <div className="min-h-screen font-sans text-white">
+      {/* Hero */}
+      <div className="relative mb-8 flex h-[320px] flex-col items-center justify-center overflow-hidden rounded-b-3xl shadow-lg">
+        <img
+          src={bg}
+          alt="VietNamLegacy"
+          className="absolute inset-0 h-full w-full object-cover opacity-60"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0fffc3]/40 via-transparent to-[#00bfff]/30" />
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="flex items-center">
+            <h1 className="text-neon-red glow-text mb-2 font-bold tracking-widest md:text-3xl xl:text-5xl">
+              {serverInfo.name}
+            </h1>
+            <h1 className="glow-text-cyan mb-2 font-bold tracking-widest text-[#00fff7] md:text-3xl xl:text-5xl">
+              {serverInfo.subName}
+            </h1>
           </div>
+          <p className="rounded-xl bg-black/20 px-4 py-2 text-[#b2fefa] md:text-base xl:text-lg">
+            {serverInfo.description}
+          </p>
         </div>
-        
-        {/* Server stats */}
-        <div className="flex space-x-4 mb-6">
-          <div className="flex-1 bg-black/40 border border-neon-blue/30 rounded p-4">
-            <div className="text-xs text-gray-400">TOTAL SERVERS</div>
-            <div className="text-2xl font-mono text-neon-blue">5</div>
-          </div>
-          <div className="flex-1 bg-black/40 border border-neon-blue/30 rounded p-4">
-            <div className="text-xs text-gray-400">PING</div>
-            <div className="text-2xl font-mono text-neon-green">19-45ms</div>
-          </div>
-          <div className="flex-1 bg-black/40 border border-neon-blue/30 rounded p-4">
-            <div className="text-xs text-gray-400">PLAYERS ONLINE</div>
-            <div className="text-2xl font-mono text-neon-yellow">548</div>
-          </div>
+      </div>
+
+      {/* Stats */}
+      <div className="mb-8 flex justify-center gap-8">
+        <div className="flex items-center gap-2 rounded border-l-4 border-[#00fff7] bg-black/20 px-4 py-2 shadow">
+          <FaUsers className="text-[#00fff7]" />
+          <span className="font-bold">{serverInfo.stats.players}</span>
         </div>
-        
-        {/* Server list header */}
-        <div className="grid grid-cols-12 gap-4 py-2 px-4 border-b border-neon-blue/30 text-xs text-gray-400">
-          <div className="col-span-4">SERVER NAME</div>
-          <div className="col-span-2">MAP</div>
-          <div className="col-span-2">PLAYERS</div>
-          <div className="col-span-1">PING</div>
-          <div className="col-span-2">DIFFICULTY</div>
-          <div className="col-span-1"></div>
+        <div className="flex items-center gap-2 rounded border-l-4 border-[#ff00cc] bg-black/20 px-4 py-2 shadow">
+          <FaClock className="text-[#ff00cc]" />
+          <span className="font-bold">{serverInfo.stats.uptime}</span>
         </div>
-        
-        <div className="space-y-3 mt-3">
-          {servers.map((server, index) => (
+        <div className="flex items-center gap-2 rounded border-l-4 border-[#00bfff] bg-black/20 px-4 py-2 shadow">
+          <FaCode className="text-[#00bfff]" />
+          <span className="font-bold">{serverInfo.stats.version}</span>
+        </div>
+      </div>
+
+      {/* Gallery */}
+      <div className="mx-auto mb-10 max-w-4xl">
+        <div className="flex overflow-hidden rounded-2xl shadow-lg">
+          {serverImages.map((img, idx) => (
+            <div key={idx} className="group relative flex-1">
+              <img
+                src={img.url}
+                alt={img.title}
+                className="h-48 w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                style={{
+                  borderRight:
+                    idx !== serverImages.length - 1
+                      ? '2px solid #00fff7'
+                      : undefined,
+                }}
+              />
+              <div className="absolute bottom-2 left-2 rounded px-3 py-1 text-xs text-[#00fff7]">
+                {img.title}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Features */}
+      <div className="mx-auto mb-10 max-w-4xl">
+        <div className="flex flex-wrap justify-center gap-4">
+          {serverInfo.features.map((f, idx) => (
             <div
-              key={index}
-              className="grid grid-cols-12 gap-4 items-center bg-black/40 border border-neon-blue/30 rounded-lg p-4 hover:border-neon-yellow hover:bg-black/50 transition-all duration-300"
+              key={idx}
+              className="flex items-center gap-2 rounded-lg border border-[#00fff7]/30 bg-black/20 px-4 py-2 shadow-sm"
             >
-              <div className="col-span-4">
-                <h3 className="text-lg font-gta tracking-wide text-white flex items-center">
-                  {server.status === 'online' && <span className="inline-block h-2 w-2 rounded-full bg-neon-green mr-2"></span>}
-                  {server.status === 'full' && <span className="inline-block h-2 w-2 rounded-full bg-neon-red mr-2"></span>}
-                  {server.name}
-                </h3>
-              </div>
-              <div className="col-span-2 text-neon-cyan font-mono text-sm">{server.map}</div>
-              <div className="col-span-2 text-sm">
-                <span className={server.status === 'full' ? 'text-neon-red' : 'text-neon-green'}>
-                  {server.players}
-                </span>
-              </div>
-              <div className="col-span-1 text-neon-blue font-mono text-sm">{server.ping}ms</div>
-              <div className="col-span-2">
-                <span className={`text-xs px-2 py-1 rounded ${
-                  server.difficulty === 'Easy' ? 'bg-green-800/40 text-green-400' :
-                  server.difficulty === 'Medium' ? 'bg-yellow-800/40 text-yellow-400' :
-                  server.difficulty === 'Hard' ? 'bg-orange-800/40 text-orange-400' :
-                  'bg-red-800/40 text-red-400'
-                }`}>
-                  {server.difficulty}
-                </span>
-              </div>
-              <div className="col-span-1 flex justify-end">
-                <button 
-                  disabled={server.status === 'full'} 
-                  className={`px-4 py-1 rounded text-sm font-bold transition-all duration-300 ${
-                    server.status === 'full' 
-                      ? 'bg-gray-800/50 text-gray-500 cursor-not-allowed' 
-                      : 'bg-neon-yellow text-black hover:bg-yellow-400'
-                  }`}
-                >
-                  JOIN
-                </button>
-              </div>
+              <span className="text-[#00fff7]">{f.icon}</span>
+              <span className="font-simibold">{f.title}</span>
+              <span className="text-xs text-[#b2fefa]">{f.desc}</span>
             </div>
           ))}
         </div>
