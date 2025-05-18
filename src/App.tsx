@@ -5,6 +5,8 @@ import {
   FaTimes,
   FaExpand,
   FaSquare,
+  FaVolumeUp,
+  FaVolumeMute,
 } from 'react-icons/fa';
 import './index.css';
 import Button from './components/Button';
@@ -16,10 +18,12 @@ import { animate, utils, createDraggable, createSpring } from 'animejs'
 import Button from './components/Button';
 import logo from './assets/images/logo.png';
 import bg from './assets/images/bg.avif';
+import bgVideo from './assets/videos/background.mp4'
 import HomePage from './components/HomePage';
 import NewsPage from './components/NewsPage';
 import ServerPage from './components/ServerPage';
 import RoadmapPage from './components/RoadmapPage';
+import AudioPlayer from './components/AudioPlayer';
 declare global {
   interface Window {
     electron?: any;
@@ -31,7 +35,7 @@ const fakeUser = {
   avatar: '',
   level: 7,
 };
-
+const ListPages = {home:'TRANG CHỦ',post: 'BÀI ĐĂNG',server: 'MÁY CHỦ',tutorial: 'HƯỚNG DẪN'}
 const ActionWindowControl = {minimize : 'minimize', maximize: 'maximize',close: 'close'}
 
 function App() {
@@ -45,6 +49,7 @@ function App() {
   const [showContent, setShowContent] = useState(true);
   const [showBottomBar, setShowBottomBar] = useState(true);
   const onlineUsers = 5715;
+  const [isMuted, setIsMuted] = useState(false);
 
   console.log(activeTab);
   
@@ -54,7 +59,7 @@ function App() {
     if (tab === activeTab) return;
     
     // Hide bottom bar with slide down animation
-    if (tab === 'HOME') {
+    if (tab === ListPages.home) {
       setShowBottomBar(true);
     } else {
       setShowBottomBar(false);
@@ -79,13 +84,13 @@ function App() {
     
     
     switch (activeTab) {
-      case 'HOME':
+      case ListPages.home:
         return <HomePage />;
-      case 'NEWS':
+      case ListPages.post:
         return <NewsPage />;
-      case 'SERVER':
+      case ListPages.server:
         return <ServerPage />;
-      case 'ROADMAP':
+      case ListPages.tutorial:
         return <RoadmapPage />;
       default:
         return <HomePage />;
@@ -164,42 +169,56 @@ function App() {
   // Main container style
   const containerClass = 'relative z-10 w-full max-w-4xl mx-auto my-12 rounded-3xl border-4 border-neon-blue bg-black/70 shadow-neon-blue flex flex-col min-h-[600px] overflow-hidden';
 
-  // Cyberpunk login/register form
-  if (!isAuthenticated) {
-    return null;
-  }
+  // Audio control handlers
+  const handleAudioControl = () => {
+    if (isMuted) {
+      window.electron?.audio.play();
+    } else {
+      window.electron?.audio.pause();
+    }
+    setIsMuted(!isMuted);
+  };
 
   // Main app after login
   return (
     <div className="relative h-screen w-screen overflow-hidden font-cyber bg-cyber-dark text-white flex items-center justify-center">
       <div className=''>
-        <img
-          src={bg}
-          alt="cyberpunk game"
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
           className={`absolute inset-0 w-full h-full object-cover object-center z-0 ${getDragClass()}`}
-          style={{ pointerEvents: 'none' }}
+          style={{ 
+            pointerEvents: 'none',
+            animation: 'slowPlay 20s linear infinite'
+          }}
           onDoubleClick={handleDoubleClickDrag}
-        />
-        <div className='absolute inset-0 w-full h-full object-cover object-center z-0 bg-black opacity-50 '></div></div>
-        {/* Window controls (no-drag) */}
-        <div className="absolute right-0 top-0 flex items-center justify-center space-x-2  app-region-no-drag">
-          <button className="text-gray-400 hover:text-white px-2 py-1" onClick={() => {handleWindowControl(ActionWindowControl.minimize)}}><FaWindowMinimize /></button>
-          <button className="text-gray-400 hover:text-white px-2 py-1" onClick={() => {handleWindowControl(ActionWindowControl.maximize)}}><FaSquare /></button>
-          <button className="text-gray-400 hover:text-red-500 px-2 py-1" onClick={() => {handleWindowControl(ActionWindowControl.close)}}><FaTimes /></button>
-        </div>
+        >
+          <source src={bgVideo} type="video/mp4" />
+        </video>
+        <div className='absolute inset-0 w-full h-full object-cover object-center z-0 bg-black opacity-30'></div>
+      </div>
+      {/* Window controls (no-drag) */}
+      <div className="absolute right-1 top-1 flex items-center justify-center space-x-2 app-region-no-drag">
+        <AudioPlayer />
+        <button className="text-gray-400 hover:text-white px-2 py-1" onClick={() => {handleWindowControl(ActionWindowControl.minimize)}}><FaWindowMinimize /></button>
+        <button className="text-gray-400 hover:text-white px-2 py-1" onClick={() => {handleWindowControl(ActionWindowControl.maximize)}}><FaSquare /></button>
+        <button className="text-gray-400 hover:text-red-500 px-2 py-1" onClick={() => {handleWindowControl(ActionWindowControl.close)}}><FaTimes /></button>
+      </div>
       {/* Container chính */}
-      <div className="relative max-w-[80%] w-full ">
+      <div className="relative max-w-[80%] w-full">
         <img className='md:w-[8rem] xl:w-[14rem] absolute z-30 -left-[10%] -top-[8%] rotate-[-15deg]' src={logo} style={{ pointerEvents: 'none' }}/>
-        <div className="relative md:h-[80%] app-region-no-drag rounded-3xl overflow-hidden shadow-neon-blue border-4 border-black bg-black/70" style={{ aspectRatio: '16/9' }}>
+        <div className="relative md:h-[80%] app-region-no-drag rounded-3xl overflow-hidden shadow-neon-blue border-4 border-black bg-black/40 backdrop-blur-sm" style={{ aspectRatio: '16/9' }}>
           {/* Ảnh game làm nền container */}
           <img
             src={bg}
             alt="bg"
-            className="absolute inset-0 w-full h-full object-cover object-center z-0"
+            className="absolute inset-0 w-full h-full object-cover object-center z-0 opacity-20"
             style={{ pointerEvents: 'none' }}
           />
           {/* Overlay gradient nhẹ nếu muốn */}
-          {/* <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-black/60 z-10" /> */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/40 z-10"></div>
           {/* Top bar: logo + menu + avatar + window controls */}
           <div className="relative z-20 bg-black/30 justify-end flex items-center xl:px-8 xl:py-4 md:px-4 md:py-2 select-none">
             <div className="flex items-center xl:space-x-8 md:space-x-4">
@@ -212,22 +231,22 @@ function App() {
                 </g>
               </svg>
               <div className="flex items-center xl:space-x-4 md:space-x-2">
-                {['HOME', 'NEWS', 'SERVER', 'ROADMAP'].map((tab) => (
+                {Object.entries(ListPages).map(([key, value]) => (
                   <button
-                    key={tab}
+                    key={value}
                     className={`xl:text-base md:text-sm font-cyber xl:px-4 xl:py-2 md:px-2 md:py-1 
                       transition-all duration-300 ease-in-out
                       relative overflow-hidden
-                      ${activeTab === tab 
+                      ${activeTab === value 
                         ? 'text-neon-pink' 
                         : 'text-white/60 hover:text-white'
                       }
                       app-region-no-drag
                       group`}
-                    onClick={() => handleTabChange(tab)}
+                    onClick={() => handleTabChange(value)}
                   >
-                    <span className="relative z-10">{tab}</span>
-                    {activeTab === tab && (
+                    <span className="relative z-10">{value}</span>
+                    {activeTab === value && (
                       <>
                         <div className="absolute bottom-0 left-0 w-full h-0.5 bg-neon-pink animate-pulse"></div>
                         <div className="absolute inset-0 bg-neon-pink/10 rounded-lg"></div>
@@ -273,9 +292,9 @@ function App() {
               <span className="font-cyber xl:text-lg md:text-xs">{onlineUsers} ONLINE</span>
             </div>
             <div className="flex flex-col items-end">
-              <div className='flex flex-col items-center hover:scale-[1.2] hover:rotate-[-20deg] cursor-pointer duration-200 transition-all'>
-                <span className="text-gray-400 xl:text-lg md:text-xs font-medium">DISCOVER THE NEW</span>
-                <span className="text-white xl:text-lg md:text-xs font-bold">JOIN</span>
+              <div className='flex flex-col items-center hover:scale-[1.2] hover:rotate-[-20deg] mb-5 cursor-pointer duration-200 transition-all'>
+                <span className="text-gray-400 xl:text-lg md:text-xs font-medium">ĐÃ SẴN SÀNG</span>
+                <span className="text-white xl:text-lg md:text-xs font-bold">CHƠI NGAY</span>
               </div>
             </div>
           </div>

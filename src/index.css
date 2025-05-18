@@ -61,3 +61,15 @@
     background-position: 200% 50%;
   }
 }
+
+@keyframes slowPlay {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

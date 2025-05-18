@@ -18,7 +18,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
 }) => {
   return (
     <div
-      className="cursor-pointer rounded-lg bg-gray-800/50 p-4 transition-all hover:bg-gray-800/70"
+      className="cursor-pointer rounded-lg bg-black/30 p-4 transition-all hover:bg-gray-800/50"
       onClick={onClick}
     >
       {image && (
@@ -30,7 +30,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
           />
         </div>
       )}
-      <h3 className="mb-2 text-lg font-bold">{title}</h3>
+      <h3 className="mb-2 text-base font-semibold">{title}</h3>
       <p className="mb-4 text-sm text-gray-300">{content}</p>
       <div className="flex items-center text-xs text-gray-400">
         <FaCalendarAlt className="mr-2" />

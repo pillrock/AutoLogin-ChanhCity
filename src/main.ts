@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, nativeImage, shell } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { updateElectronApp } from 'update-electron-app';
@@ -12,9 +12,21 @@ updateElectronApp({
   repo: 'pillrock/VietNam-Legacy', 
   updateInterval: '1 hour', // Kiểm tra cập nhật mỗi giờ
 });
-console.log(__dirname);
+console.log(process.cwd());
 
+const BASE_PATH = app.isPackaged
+  ? path.join(process.cwd(), './src/assets')
+  : path.join(process.cwd(), './src/assets');
 
+// Xác định file icon dựa trên hệ điều hành
+let iconPath: string;
+if (process.platform === 'win32') {
+  iconPath = path.join(BASE_PATH, 'images/logo.ico');
+} else if (process.platform === 'darwin') {
+  iconPath = path.join(BASE_PATH, 'images/logo.icns');
+} else {
+  iconPath = path.join(BASE_PATH, 'images/logo.png');
+}
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -23,6 +35,7 @@ const createWindow = () => {
     resizable: false,
     maximizable: false,
     fullscreen: false,
+    icon: iconPath,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: true,
@@ -31,6 +44,8 @@ const createWindow = () => {
     frame: false,
     transparent: true,
   });
+
+
 
   // Không cho resize
   mainWindow.setResizable(false);
@@ -100,7 +115,10 @@ const createWindow = () => {
     console.log('Window unmaximized, sending state: false');
     mainWindow.webContents.send('window-state-changed', false);
   });
-
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' }
+  })
   // Game management
   ipcMain.handle('get-games', async () => {
     ///
@@ -118,6 +136,18 @@ const createWindow = () => {
     // Implement game download logic
   });
 
+  // Handle external links
+  ipcMain.on('open-external', async (_, url) => {
+    try {
+      await shell.openExternal(url);
+    } catch (error) {
+      console.error('Failed to open external link:', error);
+      dialog.showErrorBox(
+        'Error',
+        'Could not open the link in your default browser.'
+      );
+    }
+  });
 
 };
 // This method will be called when Electron has finished

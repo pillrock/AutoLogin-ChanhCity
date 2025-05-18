@@ -7,11 +7,12 @@ import { VitePlugin } from '@electron-forge/plugin-vite';
 import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
 import dotenv from 'dotenv';
-import { resolve } from 'path';
+import path, { resolve } from 'path';
 dotenv.config();
 
 const config: ForgeConfig = {
   packagerConfig: {
+    icon: path.join(process.cwd(), './src/assets/images/logo'),
     asar: false, // Phải tắt asar để native module hoạt động
     extraResource: [
         // Thư mục chứa tài nguyên sẽ được đóng gói theo đường dẫn resources/assets
@@ -23,10 +24,20 @@ const config: ForgeConfig = {
   },
 
   makers: [
-    new MakerSquirrel({}),
+    new MakerSquirrel({
+      setupIcon: path.join(process.cwd(), './src/assets/images/logo.ico'),
+    }),
     new MakerZIP({}, ['darwin']),
-    new MakerRpm({}),
-    new MakerDeb({}),
+    new MakerRpm({
+      options: {
+        icon: path.join(process.cwd(), './src/assets/images/logo.png')
+      }
+    }),
+    new MakerDeb({
+      options: {
+        icon: path.join(process.cwd(), './src/assets/images/logo.png')
+      }
+    }),
   ],
   plugins: [
     new VitePlugin({
