@@ -8,6 +8,7 @@ import { FusesPlugin } from '@electron-forge/plugin-fuses';
 import { FuseV1Options, FuseVersion } from '@electron/fuses';
 import dotenv from 'dotenv';
 import path, { resolve } from 'path';
+import fs from 'fs';
 dotenv.config();
 
 const config: ForgeConfig = {
@@ -15,12 +16,10 @@ const config: ForgeConfig = {
     icon: path.join(process.cwd(), './src/assets/images/logo'),
     asar: false, // Phải tắt asar để native module hoạt động
     extraResource: [
-        // Thư mục chứa tài nguyên sẽ được đóng gói theo đường dẫn resources/assets
+      // Thư mục chứa tài nguyên sẽ được đóng gói theo đường dẫn resources/assets
       resolve(__dirname, 'src', 'assets'),
     ],
-    ignore: [
-      /^\/src/,
-    ],
+    ignore: [/^\/src/],
   },
 
   makers: [
@@ -30,15 +29,34 @@ const config: ForgeConfig = {
     new MakerZIP({}, ['darwin']),
     new MakerRpm({
       options: {
-        icon: path.join(process.cwd(), './src/assets/images/logo.png')
-      }
+        icon: path.join(process.cwd(), './src/assets/images/logo.png'),
+      },
     }),
     new MakerDeb({
       options: {
-        icon: path.join(process.cwd(), './src/assets/images/logo.png')
-      }
+        icon: path.join(process.cwd(), './src/assets/images/logo.png'),
+      },
     }),
   ],
+  hooks: {
+    generateAssets: async () => {
+      // Đọc .env
+      const env = dotenv.config().parsed;
+
+      // Ghi ra file JSON để app có thể dùng ở runtime
+      fs.writeFileSync(
+        './env.json',
+        JSON.stringify(
+          {
+            googleClientId: env.GOOGLE_CLIENT_ID,
+            googleClientSecret: env.GOOGLE_CLIENT_SECRET,
+          },
+          null,
+          2
+        )
+      );
+    },
+  },
   plugins: [
     new VitePlugin({
       build: [

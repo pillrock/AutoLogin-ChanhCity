@@ -1,13 +1,12 @@
-import dotenv from 'dotenv';
-dotenv.config();
-const clientId = process.env.GOOGLE_CLIENT_ID || '';
-const clientSecret = process.env.GOOGLE_CLIENT_SECRET || '';
+import env from '../../env.json';
+const clientId = env.googleClientId || '';
+const clientSecret = env.googleClientSecret || '';
 const redirectUri = 'http://localhost:2409';
 
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { BrowserWindow, ipcMain } from 'electron';
-export const googleSignin = (mainWindow: BrowserWindow, store) => {
+export const googleSignin = (mainWindow: BrowserWindow, store, env) => {
   ipcMain.on('google-signin', async () => {
     const authWin = new BrowserWindow({
       width: 500,
@@ -15,7 +14,7 @@ export const googleSignin = (mainWindow: BrowserWindow, store) => {
       webPreferences: { nodeIntegration: false },
     });
 
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=openid%20email%20profile&access_type=offline&prompt=consent`;
+    const authUrl = `https://accounts.google.com/o/oauth2/auth/oauthchooseaccoun?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=openid%20email%20profile&access_type=offline&prompt=consent`;
     authWin.loadURL(authUrl);
 
     authWin.webContents.on('will-redirect', async (event, newUrl) => {

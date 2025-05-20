@@ -137,21 +137,6 @@ function App() {
     return isFullscreen ? '' : 'app-region-drag';
   };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setOnlineUsers((prev) => {
-        // Tăng hoặc giảm ngẫu nhiên từ -5 đến +5
-        let next = prev + Math.floor(Math.random() * 11) - 5;
-        // Giới hạn trong khoảng 1000 - 1200
-        if (next < 1000) next = 1000;
-        if (next > 1200) next = 1200;
-        return next;
-      });
-    }, 1500); // Cập nhật mỗi 1.5 giây
-
-    return () => clearInterval(interval);
-  }, []);
-
   // Main app after login
   return (
     <div className="font-cyber bg-cyber-dark relative flex h-screen w-screen items-center justify-center overflow-hidden text-white">
