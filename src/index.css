@@ -1,0 +1,152 @@
+@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.app-region-drag {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+.app-region-no-drag {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+@layer components {
+  .rainbow-loading {
+    background: linear-gradient(
+      90deg,
+      #ff0000,
+      #ff7f00,
+      #ffff00,
+      #00ff00,
+      #0000ff,
+      #4b0082,
+      #8b00ff
+    );
+    background-size: 200% 100%;
+    animation: rainbow 1.5s linear infinite;
+  }
+
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #00f3ff #000;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #00f3ff, #ff00ff);
+    border-radius: 4px;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #ff00ff, #00f3ff);
+  }
+}
+
+@keyframes rainbow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes slowPlay {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.neon-border {
+  border: 2px solid #00fff7;
+  box-shadow:
+    0 0 20px #00fff7,
+    0 0 40px #ff00cc inset;
+}
+.cyber-glow {
+  box-shadow:
+    0 0 40px #00fff7,
+    0 0 80px #ff00cc inset;
+}
+.font-cyberpunk {
+  font-family: 'Orbitron', 'Russo One', 'Montserrat', sans-serif;
+}
+.text-neon-yellow {
+  color: #fff200;
+}
+.text-neon-blue {
+  color: #00bfff;
+}
+.text-neon-pink {
+  color: #ff00cc;
+}
+.text-neon-cyan {
+  color: #00fff7;
+}
+.text-neon-green {
+  color: #00ffae;
+}
+.text-neon-red {
+  color: #e63872;
+}
+.bg-neon-blue {
+  background: #00bfff7c;
+}
+.bg-neon-pink {
+  background: #ff00cc;
+}
+.bg-neon-cyan {
+  background: #00fff7;
+}
+.bg-neon-green {
+  background: #00ffae;
+}
+.glow-text {
+  text-shadow:
+    0 0 5px #ff8787,
+    0 0 13px #ff0055,
+    0 0 21px #ff0055,
+    0 0 29px #ff0055;
+}
+.glow-text-cyan {
+  text-shadow:
+    0 0 5px #4dbeff,
+    0 0 13px #00fff7,
+    0 0 21px #00fff7,
+    0 0 29px #00fff7;
+}
+
+.playnow:hover span:nth-child(1) {
+  color: #ff2828;
+  text-shadow:
+    0 0 5px #ff5a5a,
+    0 0 13px #ff3a7c,
+    0 0 21px #ff4b87,
+    0 0 29px #ff85ae;
+}
+
+.playnow:hover span:nth-child(2) {
+  color: #00bfff;
+  text-shadow:
+    0 0 5px #87d3ff,
+    0 0 13px #00fff7,
+    0 0 21px #00fff7,
+    0 0 29px #00fff7;
+}
