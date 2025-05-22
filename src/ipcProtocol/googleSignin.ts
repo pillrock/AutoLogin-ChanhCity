@@ -23,7 +23,6 @@ export const googleSignin = (mainWindow: BrowserWindow, store, env) => {
         const code = urlObj.searchParams.get('code');
 
         if (code) {
-          console.log('Mã code nhận được:', code);
           authWin.close();
 
           try {
@@ -48,6 +47,7 @@ export const googleSignin = (mainWindow: BrowserWindow, store, env) => {
             const tokenData = tokenResponse.data;
 
             const dataDecode: any = jwtDecode(tokenData.id_token);
+
             const userInfo = {
               name: dataDecode.name,
               picture: dataDecode.picture,
@@ -56,7 +56,7 @@ export const googleSignin = (mainWindow: BrowserWindow, store, env) => {
 
             // lưu trứ vào bộ nhớ electron
             store.set('userData', userInfo);
-
+            console.log('Du lieu', dataDecode);
             // Gửi về frontend nếu cần:
             mainWindow.webContents.send('google-token', userInfo);
           } catch (err) {
