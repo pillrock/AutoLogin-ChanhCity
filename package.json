@@ -1,7 +1,7 @@
 {
   "name": "main",
   "productName": "VietNam Legacy",
-  "version": "1.0.51",
+  "version": "1.0.52",
   "description": "Laucher Game GTA FiveM VietNam Legacy",
   "main": ".vite/build/main.js",
   "scripts": {
@@ -60,6 +60,7 @@
     "animejs": "^4.0.2",
     "axios": "^1.9.0",
     "body-parser": "^2.2.0",
+    "child_process": "^1.0.2",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "electron-squirrel-startup": "^1.0.1",
