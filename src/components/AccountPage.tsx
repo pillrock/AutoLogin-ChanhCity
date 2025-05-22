@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { FaTimes, FaEdit } from 'react-icons/fa';
+import {
+  FaTimes,
+  FaEdit,
+  FaCheckCircle,
+  FaExclamationCircle,
+  FaCrown,
+  FaUserTie,
+  FaUserSecret,
+  FaUserEdit,
+  FaPaintBrush,
+  FaBookOpen,
+} from 'react-icons/fa';
 
 interface AccountProps {
   onLogout: () => void;
@@ -29,13 +40,10 @@ const AccountPage: React.FC<AccountProps> = ({
       }
     });
   }, []);
-  console.log('Data user:', dataUser);
-
   const [editName, setEditName] = useState(false);
   const [nameInput, setNameInput] = useState(dataUser?.name);
   const [showModal, setShowModal] = useState(false);
 
-  // Animation for modal entry
   useEffect(() => {
     setShowModal(true);
   }, []);
@@ -54,114 +62,174 @@ const AccountPage: React.FC<AccountProps> = ({
     }, 300);
   };
 
+  // Danh hiệu mẫu, màu đơn giản, quyền lực cao màu đậm hơn
+  const badges = [
+    {
+      label: 'CHỦ TỊCH NƯỚC',
+      color: 'bg-red-700 text-white',
+      icon: <FaCrown className="mr-1 inline" />,
+    },
+    {
+      label: 'THỦ TƯỚNG',
+      color: 'bg-blue-700 text-white',
+      icon: <FaUserSecret className="mr-1 inline" />,
+    },
+    {
+      label: 'DEV',
+      color: 'bg-black text-[#00f0ff]',
+      icon: <FaUserEdit className="mr-1 inline" />,
+    },
+    {
+      label: 'DESIGN',
+      color: 'bg-yellow-300 text-yellow-900',
+      icon: <FaPaintBrush className="mr-1 inline" />,
+    },
+    {
+      label: 'NGƯỜI KỂ CHUYỆN',
+      color: 'bg-purple-700 text-white',
+      icon: <FaBookOpen className="mr-1 inline" />,
+    },
+    {
+      label: 'CÔNG DÂN',
+      color: 'bg-green-600 text-white',
+      icon: <FaUserTie className="mr-1 inline" />,
+    },
+  ];
+
   return (
-    <div className="flex w-full items-center justify-center bg-black/30 backdrop-blur-md">
+    <div className="flex w-full items-center justify-center backdrop-blur-md">
       <div
-        className={`font-cyber relative mx-4 w-full transform overflow-hidden rounded-xl border border-cyan-500/30 bg-black/70 backdrop-blur-md transition-all duration-300 ${
+        className={`font-cyber relative mx-4 w-full transform overflow-hidden backdrop-blur-md transition-all duration-300 ${
           showModal ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
         }`}
       >
         <div className="p-6">
           {/* Avatar and Name */}
-          <div className="flex flex-col items-center">
-            <div className="mb-4 h-24 w-24 overflow-hidden rounded-full border-2 border-cyan-500/50">
+          <div className="flex items-center gap-x-6">
+            <div className="mb-4 flex h-24 w-24 flex-shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-cyan-500/50 bg-cyan-950">
               <img
                 src={dataUser?.picture}
                 alt="avatar"
-                className="h-full w-full object-cover"
+                className="h-24 w-24 rounded-full object-cover"
+                style={{ objectFit: 'cover' }}
               />
             </div>
-
-            <div className="mb-2 text-center">
-              {editName ? (
-                <div>
-                  <input
-                    className="w-full rounded bg-black/60 px-3 py-1 text-lg font-semibold text-cyan-100 ring-1 ring-cyan-500/50 outline-none focus:ring-2 focus:ring-cyan-400"
-                    value={nameInput}
-                    onChange={(e) => setNameInput(e.target.value)}
-                    autoFocus
-                    maxLength={32}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleSaveName();
-                      if (e.key === 'Escape') {
-                        setNameInput(dataUser?.name);
-                        setEditName(false);
-                      }
-                    }}
-                  />
-                  <div className="mt-2 flex justify-center space-x-3">
-                    <button
-                      className="text-xs text-cyan-400 hover:text-cyan-300"
-                      onClick={handleSaveName}
-                    >
-                      Lưu
-                    </button>
-                    <button
-                      className="text-xs text-gray-400 hover:text-gray-300"
-                      onClick={() => {
-                        setNameInput(dataUser?.name);
-                        setEditName(false);
+            <div className="flex flex-1 flex-col gap-2">
+              <div className="mb-2 text-left">
+                {editName ? (
+                  <div className="flex items-center">
+                    <input
+                      className="w-full rounded px-3 py-1 text-lg font-semibold text-cyan-100 ring-1 ring-cyan-500/50 outline-none focus:ring-2 focus:ring-cyan-400"
+                      value={nameInput}
+                      onChange={(e) => setNameInput(e.target.value)}
+                      autoFocus
+                      maxLength={32}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveName();
+                        if (e.key === 'Escape') {
+                          setNameInput(dataUser?.name);
+                          setEditName(false);
+                        }
                       }}
+                    />
+                    <div className="ml-3 flex space-x-3">
+                      <button
+                        className="text-xs text-cyan-400 hover:text-cyan-300"
+                        onClick={handleSaveName}
+                      >
+                        LƯU
+                      </button>
+                      <button
+                        className="text-xs text-gray-400 hover:text-gray-300"
+                        onClick={() => {
+                          setNameInput(dataUser?.name);
+                          setEditName(false);
+                        }}
+                      >
+                        HỦY
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="group flex items-center gap-x-2">
+                    <h2 className="text-xl font-bold text-cyan-100">
+                      {dataUser?.name}
+                    </h2>
+                    <button
+                      type="button"
+                      className="mt-1 text-xs text-cyan-400 hover:text-cyan-300"
+                      onClick={() => setEditName(true)}
                     >
-                      Hủy
+                      <span className="flex items-center justify-center gap-1">
+                        <FaEdit size={12} />
+                        <span>SỬA</span>
+                      </span>
                     </button>
                   </div>
-                </div>
-              ) : (
-                <div className="group">
-                  <h2 className="text-xl font-bold text-cyan-100">
-                    {dataUser?.name}
-                  </h2>
-                  <button
-                    type="button"
-                    className="mt-1 text-xs text-cyan-400 hover:text-cyan-300"
-                    onClick={() => setEditName(true)}
+                )}
+              </div>
+              {/* Badge xác thực và các danh hiệu liền nhau */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span
+                  className={`flex h-min w-max items-center gap-1 rounded-full px-3 py-1 font-semibold md:text-[10px] xl:text-xs ${
+                    dataUser?.isVerified
+                      ? 'bg-neon-blue/80 text-white'
+                      : 'bg-yellow-600/60 text-yellow-200'
+                  }`}
+                >
+                  {dataUser?.isVerified ? (
+                    <>
+                      <FaCheckCircle className="mr-1 inline text-white" />
+                      ĐÃ XÁC THỰC
+                    </>
+                  ) : (
+                    <>
+                      <FaExclamationCircle className="mr-1 inline text-yellow-200" />
+                      CHƯA XÁC THỰC
+                    </>
+                  )}
+                </span>
+                {badges.map((badge) => (
+                  <span
+                    key={badge.label}
+                    className={`flex items-center gap-1 rounded-full px-3 py-1 font-semibold shadow md:text-[10px] xl:text-xs ${badge.color}`}
                   >
-                    <span className="flex items-center justify-center gap-1">
-                      <FaEdit size={12} />
-                      <span>Sửa</span>
-                    </span>
-                  </button>
-                </div>
-              )}
+                    {badge.icon}
+                    {badge.label}
+                  </span>
+                ))}
+              </div>
             </div>
-
-            <span
-              className={`mb-4 rounded-full px-3 py-1 text-xs font-semibold ${
-                dataUser?.isVerified
-                  ? 'bg-green-700/60 text-green-200'
-                  : 'bg-yellow-600/60 text-yellow-200'
-              }`}
-            >
-              {dataUser?.isVerified ? 'Đã xác thực' : 'Chưa xác thực'}
-            </span>
           </div>
 
           {/* Info Fields */}
-          <div className="mt-4 mb-6 grid gap-4">
-            <Field label="Email" value={dataUser?.email} />
-            <Field label="ID thiết bị" value={dataUser?.deviceId} />
+          <div className="mt-4 mb-6 grid gap-4 text-xs">
+            <Field label="EMAIL" value={dataUser?.email} />
+            <Field label="ID THIẾT BỊ" value={dataUser?.deviceId} />
             <Field
-              label="Số CCCD"
+              label="SỐ CCCD"
               value={
                 dataUser?.cccd || (
-                  <span className="text-gray-400 italic">Chưa cập nhật</span>
+                  <span className="text-xs text-gray-400 italic">
+                    CHƯA CẬP NHẬT
+                  </span>
                 )
               }
             />
           </div>
 
           {/* Divider */}
-          <div className="mb-6 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent"></div>
+          <div className="mb-6 h-px bg-cyan-900/40"></div>
 
           {/* Actions */}
           <div className="grid gap-3">
             {!dataUser?.isVerified && (
               <button
                 onClick={onSendProfile}
-                className="w-full rounded bg-gradient-to-r from-yellow-600/80 to-amber-600/80 px-4 py-2 font-semibold text-amber-100 transition-all hover:from-yellow-500/90 hover:to-amber-500/90"
+                className="flex w-full items-center justify-center gap-2 rounded bg-yellow-600 px-4 py-2 font-semibold text-white opacity-90 transition-all hover:opacity-100"
               >
-                Gửi hồ sơ xác thực
+                <FaExclamationCircle className="text-white" />
+                <span className="text-xs">GỬI HỒ SƠ XÁC THỰC</span>
               </button>
             )}
           </div>
@@ -172,8 +240,8 @@ const AccountPage: React.FC<AccountProps> = ({
 };
 
 const Field = ({ label, value }: { label: string; value: React.ReactNode }) => (
-  <div className="rounded border border-cyan-800/30 bg-black/40 p-3">
-    <label className="mb-1 block text-sm font-semibold text-cyan-400">
+  <div className="rounded border border-cyan-800/30 p-3">
+    <label className="mb-1 block text-xs font-semibold text-cyan-400">
       {label}
     </label>
     <div className="text-sm text-cyan-100 select-text">{value}</div>
