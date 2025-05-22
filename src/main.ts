@@ -19,6 +19,7 @@ import { openExternal } from './ipcProtocol/openExternal';
 import { googleSignin } from './ipcProtocol/googleSignin';
 import { get } from 'node:http';
 import { getUserData } from './ipcProtocol/getUserData';
+import { exec } from 'child_process';
 
 const store = new Store();
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -29,7 +30,6 @@ updateElectronApp({
   repo: 'pillrock/VietNam-Legacy',
   updateInterval: '1 hour', // Kiểm tra cập nhật mỗi giờ
 });
-console.log(process.cwd());
 
 const BASE_PATH = app.isPackaged
   ? path.join(process.cwd(), './src/assets')
@@ -74,7 +74,6 @@ const createWindow = () => {
   // Gửi trạng thái ban đầu ngay sau khi tạo cửa sổ
   mainWindow.webContents.on('did-finish-load', () => {
     const isMaximized = Boolean(mainWindow.isMaximized());
-    console.log('Sending initial window state:', isMaximized);
     mainWindow.webContents.send('window-state-changed', isMaximized);
   });
 
@@ -107,6 +106,11 @@ const createWindow = () => {
   getUserData(store);
   ipcMain.handle('remove-user-data', () => {
     store.delete('userData');
+  });
+
+  ipcMain.on('open-fivem-server', () => {
+    exec('start "" "fivem://connect/g35qox"');
+    console.log('Opening FiveM server...');
   });
 };
 

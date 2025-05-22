@@ -7,7 +7,6 @@ contextBridge.exposeInMainWorld('electron', {
     },
     on: (channel: string, func: (...args: any[]) => void) => {
       const subscription = (_event: any, ...args: any[]) => {
-        console.log('Preload received event:', channel, args);
         const value = args[0];
         func(value);
       };
@@ -25,7 +24,6 @@ contextBridge.exposeInMainWorld('electron', {
   },
   window: {
     getState: () => {
-      console.log('Preload: Requesting window state');
       ipcRenderer.send('window-get-state');
     },
   },
@@ -42,12 +40,14 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer
       .invoke('check-data-user')
       .then((data: UserData | null) => {
-        console.log('Preload: User data:', data);
         callback(data);
       })
       .catch((error: Error) => {
         console.error('Preload: Error fetching user data:', error);
         callback(null, error);
       });
+  },
+  openServerFiveM: () => {
+    ipcRenderer.send('open-fivem-server');
   },
 });

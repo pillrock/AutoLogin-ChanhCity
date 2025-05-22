@@ -57,7 +57,7 @@ export default function FooterHome({
           className="group playnow mb-5 flex cursor-pointer flex-col items-center transition-all duration-200 hover:scale-[1.2] hover:rotate-[-20deg]"
           onClick={(e) => {
             e.preventDefault();
-            window.electron?.shell.openExternal('fivem://connect/g35qox');
+            window.electron?.openServerFiveM();
           }}
         >
           <span className="font-medium text-gray-400 transition-all md:text-xs xl:text-lg">
