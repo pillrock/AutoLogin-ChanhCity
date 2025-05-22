@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react';
 import { FaUser } from 'react-icons/fa';
+import AccountPage from './AccountPage';
 
 export interface UserData {
   name: string;
   email: string;
   picture: string;
+  deviceId?: string;
+  cccd?: string;
+  isVerified?: boolean;
 }
-export const UserProfile = () => {
+export const UserProfile = ({ setActiveTab, handleTabChange }) => {
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [showAccountModal, setShowAccountModal] = useState(false);
+
   useEffect(() => {
     window.electron?.onGoogleToken((token: any) => {
       setUserData(token);
@@ -23,6 +29,14 @@ export const UserProfile = () => {
       }
     });
   }, []);
+  // Dummy data bổ sung cho demo (bạn thay bằng dữ liệu thực tế)
+  const fullUserData = {
+    ...userData,
+    deviceId: 'ABC123456',
+    cccd: '012345678901',
+    isVerified: false,
+  };
+
   return (
     <div className="relative ml-[1rem]">
       {!userData ? (
@@ -93,7 +107,13 @@ export const UserProfile = () => {
               className="aspect-square rounded-full"
             />
             <div className="absolute top-[30%] right-0 h-[5rem] w-[10rem] translate-y-0 rounded-xl bg-black/20 opacity-0 transition-all delay-100 duration-200 group-hover:pointer-events-auto group-hover:translate-y-6 group-hover:opacity-100">
-              <button className="group/button relative flex w-full cursor-pointer items-center gap-x-2 p-3">
+              <button
+                className="group/button relative flex w-full cursor-pointer items-center gap-x-2 p-3"
+                onClick={() => {
+                  setActiveTab('TÀI KHOẢN');
+                  handleTabChange('TÀI KHOẢN');
+                }}
+              >
                 <p className="text-[10px] font-semibold text-gray-300 group-hover/button:text-white">
                   TÀI KHOẢN
                 </p>
@@ -113,6 +133,55 @@ export const UserProfile = () => {
               </button>
             </div>
           </div>
+          {/* Modal AccountPage */}
+          {showAccountModal && (
+            <h1>c</h1>
+            // <div
+            //   className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md transition-all"
+            //   onClick={() => setShowAccountModal(false)}
+            // >
+            //   <div
+            //     onClick={(e) => e.stopPropagation()}
+            //     className="h-[40%] w-[60%]"
+            //   >
+            //     <AccountPage
+            //       user={fullUserData}
+            //       onLogout={() => {
+            //         setUserData(null);
+            //         setShowAccountModal(false);
+            //         window.electron.ipcRenderer.invoke('remove-user-data');
+            //       }}
+            //       onUpdateName={(name) => {
+            //         setUserData((prev) => (prev ? { ...prev, name } : prev));
+            //       }}
+            //       onSendProfile={() => {
+            //         // Xử lý gửi hồ sơ xác thực
+            //       }}
+            //       onClose={() => setShowAccountModal(false)}
+            //     />
+            //   </div>
+            //   {/* <div
+            //     className="relative"
+            //     onClick={(e) => e.stopPropagation()} // Ngăn click vào modal bị tắt
+            //   >
+            //     <AccountPage
+            //       user={fullUserData}
+            //       onLogout={() => {
+            //         setUserData(null);
+            //         setShowAccountModal(false);
+            //         window.electron.ipcRenderer.invoke('remove-user-data');
+            //       }}
+            //       onUpdateName={(name) => {
+            //         setUserData((prev) => (prev ? { ...prev, name } : prev));
+            //       }}
+            //       onSendProfile={() => {
+            //         // Xử lý gửi hồ sơ xác thực
+            //       }}
+            //       onClose={() => setShowAccountModal(false)}
+            //     />
+            //   </div> */}
+            // </div>
+          )}
         </div>
       )}
     </div>

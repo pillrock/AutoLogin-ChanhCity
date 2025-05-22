@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaWindowMinimize, FaTimes, FaSquare } from 'react-icons/fa';
 import './index.css';
-import { UserProfile } from './components/UserProfile';
+import UserProfile, { UserData } from './components/UserProfile';
 import { animate, createSpring } from 'animejs';
 import logo from './assets/images/logo.png';
 import bg from './assets/images/bg.avif';
@@ -12,6 +12,9 @@ import ServerPage from './components/ServerPage';
 import RoadmapPage from './components/RoadmapPage';
 import AudioPlayer from './components/AudioPlayer';
 import FooterHome from './components/FooterHome';
+import AccountPage from './components/AccountPage';
+import { list } from 'postcss';
+
 declare global {
   interface Window {
     electron?: any;
@@ -23,6 +26,7 @@ const ListPages = {
   post: 'BÀI ĐĂNG',
   server: 'MÁY CHỦ',
   tutorial: 'HƯỚNG DẪN',
+  account: 'TÀI KHOẢN',
 };
 const ActionWindowControl = {
   minimize: 'minimize',
@@ -31,15 +35,15 @@ const ActionWindowControl = {
 };
 
 function App() {
-  const [activeTab, setActiveTab] = useState('HOME');
+  const [activeTab, setActiveTab] = useState(ListPages.home);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showContent, setShowContent] = useState(true);
   const [showBottomBar, setShowBottomBar] = useState(true);
-
   const [isMuted, setIsMuted] = useState(false);
 
-  console.log(activeTab);
+  // User state
+  const [userData, setUserData] = useState<UserData | null>(null);
 
   // Handle tab change with loading animation
   const handleTabChange = (tab: string) => {
@@ -77,6 +81,22 @@ function App() {
         return <ServerPage />;
       case ListPages.tutorial:
         return <RoadmapPage />;
+      case ListPages.account:
+        return (
+          <AccountPage
+            onLogout={() => {
+              setUserData(null);
+              setActiveTab(ListPages.home);
+              window.electron?.ipcRenderer.invoke('remove-user-data');
+            }}
+            onUpdateName={(name) => {
+              setUserData((prev) => (prev ? { ...prev, name } : prev));
+            }}
+            onSendProfile={() => {
+              // Xử lý gửi hồ sơ xác thực
+            }}
+          />
+        );
       default:
         return <HomePage />;
     }
@@ -121,7 +141,6 @@ function App() {
 
   // Window control
   const handleWindowControl = (action: string) => {
-    console.log('Window control:', action);
     window.electron?.ipcRenderer.send('window-control', action);
   };
 
@@ -137,7 +156,6 @@ function App() {
     return isFullscreen ? '' : 'app-region-drag';
   };
 
-  // Main app after login
   return (
     <div className="font-cyber bg-cyber-dark relative flex h-screen w-screen items-center justify-center overflow-hidden text-white">
       <div className="">
@@ -196,13 +214,6 @@ function App() {
           className="app-region-no-drag shadow-neon-blue relative overflow-hidden rounded-3xl border-4 border-black bg-black/40 backdrop-blur-sm md:h-[80%]"
           style={{ aspectRatio: '16/9' }}
         >
-          {/* Ảnh game làm nền container */}
-          {/* <img
-            src={bg}
-            alt="bg"
-            className="absolute inset-0 z-0 h-full w-full object-cover object-center opacity-20"
-            style={{ pointerEvents: 'none' }}
-          /> */}
           {/* Overlay gradient nhẹ nếu muốn */}
           <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/20 to-black/40"></div>
           {/* Top bar: logo + menu + avatar + window controls */}
@@ -241,7 +252,7 @@ function App() {
                 {Object.entries(ListPages).map(([key, value]) => (
                   <button
                     key={value}
-                    className={`font-cyber relative overflow-hidden transition-all duration-300 ease-in-out md:px-2 md:py-1 md:text-sm xl:px-4 xl:py-2 xl:text-base ${
+                    className={`font-cyber ${key === 'account' && 'hidden'} relative overflow-hidden transition-all duration-300 ease-in-out md:px-2 md:py-1 md:text-sm xl:px-4 xl:py-2 xl:text-base ${
                       activeTab === value
                         ? 'text-neon-blue'
                         : 'text-white/60 hover:text-white'
@@ -260,7 +271,10 @@ function App() {
                 ))}
               </div>
             </div>
-            <UserProfile />
+            <UserProfile
+              setActiveTab={setActiveTab}
+              handleTabChange={handleTabChange}
+            />
           </div>
 
           {/* Main Content Area */}
