@@ -1,7 +1,7 @@
 {
   "name": "main",
   "productName": "VietNam Legacy",
-  "version": "1.0.53",
+  "version": "1.0.54",
   "description": "Laucher Game GTA FiveM VietNam Legacy",
   "main": ".vite/build/main.js",
   "scripts": {

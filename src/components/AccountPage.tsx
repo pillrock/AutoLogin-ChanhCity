@@ -226,7 +226,7 @@ const AccountPage: React.FC<AccountProps> = ({
             {!dataUser?.isVerified && (
               <button
                 onClick={onSendProfile}
-                className="flex w-full items-center justify-center gap-2 rounded bg-yellow-600 px-4 py-2 font-semibold text-white opacity-90 transition-all hover:opacity-100"
+                className="flex w-full items-center justify-center gap-2 rounded bg-gradient-to-r from-transparent via-[#00c6d4] to-transparent px-4 py-2 font-semibold text-white opacity-90 transition-all hover:opacity-100"
               >
                 <FaExclamationCircle className="text-white" />
                 <span className="text-xs">GỬI HỒ SƠ XÁC THỰC</span>
