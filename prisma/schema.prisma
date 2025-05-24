@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  isAdmin   Boolean  @default(false)
+  IDDevice  String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile   Profile?
+  posts     Post[] 
+  tutorials Tutorial[]
+}
+
+model Profile {
+  id        Int      @id @default(autoincrement())
+  fullName  String?  @db.VarChar(50)
+  CCCD      String?  @db.VarChar(20)
+  phone     String?  @db.VarChar(12)
+  createdAt DateTime @default(now())
+  roleTag RolePeople[] 
+  updatedAt DateTime @updatedAt
+  userId    Int?     @unique
+  user      User?    @relation(fields: [userId], references: [id])
+}
+
+model RolePeople {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(50)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  profile   Profile[] 
+}
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(100)
+  content   String   @db.Text
+  type PostType
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id])
+}
+
+model Tutorial {
+  id        Int      @id @default(autoincrement())
+  title     String   @db.VarChar(100)
+  content   String   @db.Text
+  authorId Int?
+  author    User?    @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+enum PostType {
+  cap_nhat
+  su_kien
+  bao_tri
+  huong_dan
+}
+enum RolePeopelType {
+  chu_tich_nuoc
+  thu_tuong
+  bo_truong
+  pho_thu_tuong
+  dev
+  designer
+  nguoi_ke_chuyen
+  cong_dan
+}
