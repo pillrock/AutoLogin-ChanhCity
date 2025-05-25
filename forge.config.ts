@@ -50,6 +50,7 @@ const config: ForgeConfig = {
           {
             googleClientId: env.GOOGLE_CLIENT_ID,
             googleClientSecret: env.GOOGLE_CLIENT_SECRET,
+            api: env.API,
           },
           null,
           2

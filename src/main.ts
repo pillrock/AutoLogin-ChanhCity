@@ -9,19 +9,17 @@ import {
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { updateElectronApp } from 'update-electron-app';
-import dotenv from 'dotenv';
-import axios from 'axios';
 import Store from 'electron-store';
-import { loginWithSheet, registerWithSheet } from './services/sheetApi';
 
 import { windowControl } from './ipcProtocol/windowControl';
 import { openExternal } from './ipcProtocol/openExternal';
 import { googleSignin } from './ipcProtocol/googleSignin';
-import { get } from 'node:http';
 import { getUserData } from './ipcProtocol/getUserData';
 import { exec } from 'child_process';
+import { updateStorage } from './ipcProtocol/updateStorage';
 
 const store = new Store();
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
   app.quit();
@@ -107,7 +105,7 @@ const createWindow = () => {
   ipcMain.handle('remove-user-data', () => {
     store.delete('userData');
   });
-
+  updateStorage(store);
   ipcMain.on('open-fivem-server', () => {
     exec('start "" "fivem://connect/g35qox"');
     console.log('Opening FiveM server...');

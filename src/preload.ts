@@ -50,4 +50,7 @@ contextBridge.exposeInMainWorld('electron', {
   openServerFiveM: () => {
     ipcRenderer.send('open-fivem-server');
   },
+  updateStorage: (data: Record<string, any>) => {
+    return ipcRenderer.invoke('update-storage', data);
+  },
 });
