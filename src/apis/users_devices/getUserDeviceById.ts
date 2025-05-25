@@ -6,5 +6,5 @@ import api from '../../services/apis';
  * @returns Promise trả về thông tin quan hệ
  */
 export const getUserDeviceById = async (id: number) => {
-  return await api.get(`/users-devices/${id}`, {});
+  return await api.get(`/users-devices/${id}`, { isAdmin: true });
 };

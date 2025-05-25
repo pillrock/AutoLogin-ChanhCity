@@ -13,5 +13,5 @@ export const updateUserDevice = async (
     deviceId?: number;
   }
 ) => {
-  return await api.put(`/users-devices/${id}`, data, {});
+  return await api.put(`/users-devices/${id}`, data, { isAdmin: true });
 };

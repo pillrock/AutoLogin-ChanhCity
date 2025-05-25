@@ -9,5 +9,5 @@ export const createUserDevice = async (data: {
   userId: number;
   deviceId: number;
 }) => {
-  return await api.post('/users-devices', data, {});
+  return await api.post('/users-devices', data, { isAdmin: true });
 };

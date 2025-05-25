@@ -6,5 +6,5 @@ import api from '../../services/apis';
  * @returns Promise trả về thông báo thành công
  */
 export const deleteUserDevice = async (id: number) => {
-  return await api.delete(`/users-devices/${id}`, {});
+  return await api.delete(`/users-devices/${id}`, { isAdmin: true });
 };
