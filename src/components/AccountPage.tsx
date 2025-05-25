@@ -11,6 +11,7 @@ import {
   FaPaintBrush,
   FaBookOpen,
 } from 'react-icons/fa';
+import { ProfileApis } from '../apis';
 
 interface AccountProps {
   onLogout: () => void;
@@ -19,48 +20,63 @@ interface AccountProps {
   onClose: () => void;
 }
 
-const AccountPage: React.FC<AccountProps> = ({
-  onLogout,
-  onUpdateName,
-  onSendProfile,
-  onClose,
-}) => {
+const AccountPage: React.FC<AccountProps> = ({ onSendProfile }) => {
   const [dataUser, setDataUser] = useState<any>(null);
+  const [dataProfile, setDataProfile] = useState({
+    fullName: '',
+    phone: '',
+    CCCD: '',
+    userId: '',
+  });
+
   useEffect(() => {
     window.electron.checkDataUser((data: any) => {
       if (data) {
         setDataUser({
           ...data,
-          isVerified: false,
-          deviceId: '>>>>>>>>',
-          cccd: '>>>>>>>>>>>',
+        });
+        setDataProfile({
+          ...dataProfile,
+          userId: data.id,
         });
       } else {
         setDataUser(null);
       }
     });
   }, []);
-  const [editName, setEditName] = useState(false);
-  const [nameInput, setNameInput] = useState(dataUser?.name);
+  const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDataProfile({ ...dataProfile, [e.target.name]: e.target.value });
+  };
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
+    const res = await ProfileApis.createProfile({
+      ...dataProfile,
+      userId: parseInt(dataProfile.userId),
+    });
+    console.log(res);
+    if (res.status === 200) {
+      // noti
+      //update storage
+      const result = await window.electron?.updateStorage({
+        fullName: dataProfile.fullName,
+        CCCD: dataProfile.CCCD,
+        phone: dataProfile.phone,
+      });
+      if (result.success) {
+        console.log('Cập nhật thành công');
+      } else {
+        console.error('Cập nhật thất bại');
+      }
+    }
+
+    // await ProfileApis.createProfile({});
+  };
+
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     setShowModal(true);
   }, []);
-
-  const handleSaveName = () => {
-    if (nameInput.trim() && nameInput !== dataUser?.name) {
-      onUpdateName(nameInput);
-    }
-    setEditName(false);
-  };
-
-  const handleClose = () => {
-    setShowModal(false);
-    setTimeout(() => {
-      onClose();
-    }, 300);
-  };
 
   // Danh hiệu mẫu, màu đơn giản, quyền lực cao màu đậm hơn
   const badges = [
@@ -116,57 +132,11 @@ const AccountPage: React.FC<AccountProps> = ({
             </div>
             <div className="flex flex-1 flex-col gap-2">
               <div className="mb-2 text-left">
-                {editName ? (
-                  <div className="flex items-center">
-                    <input
-                      className="w-full rounded px-3 py-1 text-lg font-semibold text-cyan-100 ring-1 ring-cyan-500/50 outline-none focus:ring-2 focus:ring-cyan-400"
-                      value={nameInput}
-                      onChange={(e) => setNameInput(e.target.value)}
-                      autoFocus
-                      maxLength={32}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleSaveName();
-                        if (e.key === 'Escape') {
-                          setNameInput(dataUser?.name);
-                          setEditName(false);
-                        }
-                      }}
-                    />
-                    <div className="ml-3 flex space-x-3">
-                      <button
-                        className="text-xs text-cyan-400 hover:text-cyan-300"
-                        onClick={handleSaveName}
-                      >
-                        LƯU
-                      </button>
-                      <button
-                        className="text-xs text-gray-400 hover:text-gray-300"
-                        onClick={() => {
-                          setNameInput(dataUser?.name);
-                          setEditName(false);
-                        }}
-                      >
-                        HỦY
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="group flex items-center gap-x-2">
-                    <h2 className="text-xl font-bold text-cyan-100">
-                      {dataUser?.name}
-                    </h2>
-                    <button
-                      type="button"
-                      className="mt-1 text-xs text-cyan-400 hover:text-cyan-300"
-                      onClick={() => setEditName(true)}
-                    >
-                      <span className="flex items-center justify-center gap-1">
-                        <FaEdit size={12} />
-                        <span>SỬA</span>
-                      </span>
-                    </button>
-                  </div>
-                )}
+                <div className="group flex items-center gap-x-2">
+                  <h2 className="text-xl font-bold text-cyan-100">
+                    {dataUser?.name}
+                  </h2>
+                </div>
               </div>
               {/* Badge xác thực và các danh hiệu liền nhau */}
               <div className="flex flex-wrap items-center gap-2">
@@ -203,48 +173,93 @@ const AccountPage: React.FC<AccountProps> = ({
           </div>
 
           {/* Info Fields */}
-          <div className="mt-4 mb-6 grid gap-4 text-xs">
-            <Field label="EMAIL" value={dataUser?.email} />
-            <Field label="ID THIẾT BỊ" value={dataUser?.deviceId} />
-            <Field
-              label="SỐ CCCD"
-              value={
-                dataUser?.cccd || (
-                  <span className="text-xs text-gray-400 italic">
-                    CHƯA CẬP NHẬT
-                  </span>
-                )
-              }
-            />
-          </div>
+          <form onSubmit={handleSaveProfile} method="post">
+            <div className="mt-4 mb-6 grid gap-4 text-xs">
+              <Field label="EMAIL" value={dataUser?.email} />
+              <div className="rounded border border-cyan-800/30 p-3">
+                <label className="mb-1 block text-xs font-semibold text-cyan-400">
+                  ID THIẾT BỊ
+                </label>
+                {dataUser?.IDDevices &&
+                  dataUser?.IDDevices.map((IDDevice: string) => (
+                    <input
+                      type="text"
+                      value={IDDevice || ''}
+                      readOnly
+                      className="w-full border-none bg-transparent py-1 text-sm text-cyan-100 outline-none select-text placeholder:text-xs"
+                    />
+                  ))}
+              </div>
+              <Field
+                label="SỐ CCCD"
+                value={dataUser?.CCCD ? dataUser.CCCD : dataProfile?.CCCD}
+                name="CCCD"
+                handleChangeInput={handleChangeInput}
+              />
+              <Field
+                label="HỌ VÀ TÊN"
+                value={
+                  dataUser?.fullName ? dataUser.fullName : dataProfile?.fullName
+                }
+                name="fullName"
+                handleChangeInput={handleChangeInput}
+              />
+              <Field
+                label="SỐ ĐIỆN THOẠI"
+                value={dataUser?.phone ? dataUser.phone : dataProfile?.phone}
+                name="phone"
+                handleChangeInput={handleChangeInput}
+              />
+            </div>
 
-          {/* Divider */}
-          <div className="mb-6 h-px bg-cyan-900/40"></div>
+            {/* Divider */}
+            <div className="mb-6 h-px bg-cyan-900/40"></div>
 
-          {/* Actions */}
-          <div className="grid gap-3">
-            {!dataUser?.isVerified && (
-              <button
-                onClick={onSendProfile}
-                className="flex w-full items-center justify-center gap-2 rounded bg-gradient-to-r from-transparent via-[#00c6d4] to-transparent px-4 py-2 font-semibold text-white opacity-90 transition-all hover:opacity-100"
-              >
-                <FaExclamationCircle className="text-white" />
-                <span className="text-xs">GỬI HỒ SƠ XÁC THỰC</span>
-              </button>
-            )}
-          </div>
+            {/* Actions */}
+            <div className="grid gap-3">
+              {!dataUser?.isVerified && (
+                <button
+                  type="submit"
+                  onClick={onSendProfile}
+                  className="flex w-full items-center justify-center gap-2 rounded bg-gradient-to-r from-transparent via-[#00c6d4] to-transparent px-4 py-2 font-semibold text-white opacity-90 transition-all hover:opacity-100"
+                >
+                  <FaExclamationCircle className="text-white" />
+                  <span className="text-xs">GỬI HỒ SƠ XÁC THỰC</span>
+                </button>
+              )}
+            </div>
+          </form>
         </div>
       </div>
     </div>
   );
 };
 
-const Field = ({ label, value }: { label: string; value: React.ReactNode }) => (
+const Field = ({
+  label,
+  value,
+  name,
+  handleChangeInput,
+}: {
+  label: string;
+  value: string;
+  name?: string;
+  handleChangeInput?: (e: any) => void;
+}) => (
   <div className="rounded border border-cyan-800/30 p-3">
     <label className="mb-1 block text-xs font-semibold text-cyan-400">
       {label}
     </label>
-    <div className="text-sm text-cyan-100 select-text">{value}</div>
+    <input
+      type="text"
+      name={name}
+      value={value || ''}
+      onChange={handleChangeInput}
+      readOnly={!handleChangeInput}
+      required={!!handleChangeInput}
+      className="w-full border-none bg-transparent py-1 text-sm text-cyan-100 outline-none select-text placeholder:text-xs"
+      placeholder="CHƯA CẬP NHẬT"
+    />
   </div>
 );
 

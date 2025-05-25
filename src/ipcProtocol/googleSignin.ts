@@ -6,6 +6,8 @@ const redirectUri = 'http://localhost:2409';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { BrowserWindow, ipcMain } from 'electron';
+import userService from '../services/userService';
+
 export const googleSignin = (mainWindow: BrowserWindow, store, env) => {
   ipcMain.on('google-signin', async () => {
     const authWin = new BrowserWindow({
@@ -47,16 +49,14 @@ export const googleSignin = (mainWindow: BrowserWindow, store, env) => {
             const tokenData = tokenResponse.data;
 
             const dataDecode: any = jwtDecode(tokenData.id_token);
+            let userInfo = null;
+            userInfo = await userService.handleUserFirstConnect(
+              dataDecode,
+              userInfo
+            );
+            console.log('userInfo:', userInfo); // ✅ Bây giờ sẽ đúng
 
-            const userInfo = {
-              name: dataDecode.name,
-              picture: dataDecode.picture,
-              email: dataDecode.email,
-            };
-
-            // lưu trứ vào bộ nhớ electron
             store.set('userData', userInfo);
-            console.log('Du lieu', dataDecode);
             // Gửi về frontend nếu cần:
             mainWindow.webContents.send('google-token', userInfo);
           } catch (err) {

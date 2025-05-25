@@ -52,7 +52,6 @@ const handleUserFirstConnect = async (userInfo: any) => {
         userId: userInfo.id,
         deviceId: checkDeviceRes.data.id,
       });
-      console.log('ĐÃ TẠO ');
       userInfo = {
         ...userInfo,
         IDDevices: [...userInfo.IDDevices, checkDeviceRes.data.IDDevice],
