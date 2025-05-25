@@ -34,6 +34,40 @@ import { getAllTutorials } from './tutorial/getAllTutorials';
 import { updateTutorial } from './tutorial/updateTutorial';
 import { deleteTutorial } from './tutorial/deleteTutorial';
 
+// DEVICE API
+import { createDevice } from './device/createDevice';
+import { getAllDevices } from './device/getAllDevices';
+import { getDeviceById } from './device/getDeviceById';
+import { getDevicesByUserId } from './device/getDevicesByUser';
+import { deleteDevice } from './device/deleteDevice';
+import { checkDevice } from './device/checkDevice';
+
+// USER_DEVICES API
+import { createUserDevice } from './users_devices/createUserDevice';
+import { deleteUserDevice } from './users_devices/deleteUserDevice';
+import { getDevicesByUser } from './users_devices/getDevicesByUser';
+import { getUserDeviceById } from './users_devices/getUserDeviceById';
+import { getUserDevices } from './users_devices/getUserDevices';
+import { getUsersByDevice } from './users_devices/getUsersByDevice';
+import { updateUserDevice } from './users_devices/updateUserDevice';
+
+export const Users_Devices_apis = {
+  createUserDevice,
+  deleteUserDevice,
+  getDevicesByUser,
+  getUserDeviceById,
+  getUserDevices,
+  getUsersByDevice,
+  updateUserDevice,
+};
+export const DeviceApis = {
+  createDevice,
+  getAllDevices,
+  getDeviceById,
+  getDevicesByUserId,
+  deleteDevice,
+  checkDevice,
+};
 export const UserApis = {
   checkUser,
   getAllUsers,
