@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaShare } from 'react-icons/fa';
+import { Send } from 'lucide-react';
 
 interface GameCardProps {
   title: string;
@@ -34,7 +34,7 @@ const GameCard: React.FC<GameCardProps> = ({
             onClick={handleShare}
             className="bg-neon-blue rounded-lg px-4 py-2 font-bold transition-all duration-300 hover:opacity-70"
           >
-            <FaShare />
+            <Send size={19} />
           </button>
         </div>
       </div>

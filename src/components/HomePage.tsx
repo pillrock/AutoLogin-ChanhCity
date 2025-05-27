@@ -3,7 +3,6 @@ import GameCard from './GameCard';
 import NewsCard from './NewsCard';
 import fivem from '../assets/images/fivem.png';
 import discord from '../assets/images/discord.png';
-import { GoogleLogin } from '@react-oauth/google';
 const HomePage: React.FC = () => {
   return (
     <div className="h-full w-full overflow-y-auto p-6">

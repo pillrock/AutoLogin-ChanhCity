@@ -1,6 +1,5 @@
 import React from 'react';
-import { FaCalendarAlt } from 'react-icons/fa';
-
+import { CalendarDays } from 'lucide-react';
 interface NewsCardProps {
   title: string;
   content: string;
@@ -23,21 +22,17 @@ const NewsCard: React.FC<NewsCardProps> = ({
     >
       {image && (
         <div className="mb-4 h-48 overflow-hidden rounded-lg">
-          <img
-            src={image}
-            alt={title}
-            className="h-full w-full object-cover"
-          />
+          <img src={image} alt={title} className="h-full w-full object-cover" />
         </div>
       )}
       <h3 className="mb-2 text-base font-semibold">{title}</h3>
       <p className="mb-4 text-sm text-gray-300">{content}</p>
       <div className="flex items-center text-xs text-gray-400">
-        <FaCalendarAlt className="mr-2" />
+        <CalendarDays className="mr-2" />
         <span>{date}</span>
       </div>
     </div>
   );
 };
 
-export default NewsCard; 
+export default NewsCard;

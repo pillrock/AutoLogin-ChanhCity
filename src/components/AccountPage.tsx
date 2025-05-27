@@ -1,18 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import {
-  FaTimes,
-  FaEdit,
-  FaCheckCircle,
-  FaExclamationCircle,
-  FaCrown,
-  FaUserTie,
-  FaUserSecret,
-  FaUserEdit,
-  FaPaintBrush,
-  FaBookOpen,
-} from 'react-icons/fa';
-import { ProfileApis } from '../apis';
-
+import React, { useState, useEffect, useCallback } from 'react';
+import { BadgeCheck, CircleAlert, Crown, Send } from 'lucide-react';
+import { ProfileApis, Profiles_Roles_apis } from '../apis';
+import { useNotification } from '../contexts/NotificationContext';
 interface AccountProps {
   onLogout: () => void;
   onUpdateName: (name: string) => void;
@@ -21,6 +10,7 @@ interface AccountProps {
 }
 
 const AccountPage: React.FC<AccountProps> = ({ onSendProfile }) => {
+  const [tagsRole, setTagsRole] = useState<any[]>([]);
   const [dataUser, setDataUser] = useState<any>(null);
   const [dataProfile, setDataProfile] = useState({
     fullName: '',
@@ -29,88 +19,160 @@ const AccountPage: React.FC<AccountProps> = ({ onSendProfile }) => {
     userId: '',
   });
 
+  const { notify } = useNotification();
   useEffect(() => {
-    window.electron.checkDataUser((data: any) => {
-      if (data) {
-        setDataUser({
-          ...data,
+    // 1. Lấy dữ liệu từ local (có sẵn ID)
+    window.electron.checkDataUser(async (localData: any) => {
+      if (!localData?.id) return;
+
+      try {
+        // 2. Gọi API server để lấy profile theo ID
+        const profileRes = await ProfileApis.getProfileByUserId(localData.id);
+        const profile = profileRes?.data || {};
+        console.log('Profile từ server:', profile);
+
+        // GỌI API lấy TAGROLE
+        const tagsRoleRes = await Profiles_Roles_apis.getRolesByProfile(
+          profile.id
+        );
+        const tagsRole = tagsRoleRes?.data || [];
+        setTagsRole(tagsRole);
+
+        // 3. Cập nhật lại local storage
+        await window.electron.updateStorage({
+          fullName: profile.fullName || '',
+          phone: profile.phone || '',
+          CCCD: profile.CCCD || '',
+          status: profile.status || '',
         });
+
+        // 4. Gộp dữ liệu lại vào `dataUser` (ưu tiên thông tin từ server)
+        const updatedUser = {
+          ...localData,
+          fullName: profile.fullName || '',
+          phone: profile.phone || '',
+          CCCD: profile.CCCD || '',
+          status: profile.status || '',
+        };
+
+        setDataUser(updatedUser);
+
+        // 5. Set `dataProfile` để hiển thị lên input
         setDataProfile({
-          ...dataProfile,
-          userId: data.id,
+          fullName: profile.fullName || '',
+          phone: profile.phone || '',
+          CCCD: profile.CCCD || '',
+          userId: localData.id || '',
         });
-      } else {
-        setDataUser(null);
+      } catch (err) {
+        console.error('Lỗi lấy profile:', err);
       }
     });
   }, []);
   const handleChangeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDataProfile({ ...dataProfile, [e.target.name]: e.target.value });
   };
-  const handleSaveProfile = async (e) => {
-    e.preventDefault();
-    const res = await ProfileApis.createProfile({
-      ...dataProfile,
-      userId: parseInt(dataProfile.userId),
-    });
-    console.log(res);
-    if (res.status === 200) {
-      // noti
-      //update storage
-      const result = await window.electron?.updateStorage({
-        fullName: dataProfile.fullName,
-        CCCD: dataProfile.CCCD,
-        phone: dataProfile.phone,
-      });
-      if (result.success) {
-        console.log('Cập nhật thành công');
-      } else {
-        console.error('Cập nhật thất bại');
-      }
-    }
+  const handleSaveProfile = useCallback(
+    async (e) => {
+      e.preventDefault();
+      const localData = {
+        fullName: dataUser?.fullName || '',
+        phone: dataUser?.phone || '',
+        CCCD: dataUser?.CCCD || '',
+      };
 
-    // await ProfileApis.createProfile({});
-  };
+      if (localData?.fullName || localData?.CCCD || localData?.phone) {
+        if (
+          dataProfile?.fullName == localData?.fullName &&
+          dataProfile?.CCCD == localData?.CCCD &&
+          dataProfile?.phone == localData?.phone
+        ) {
+          return notify('THÀNH CÔNG');
+        }
+        const res = await ProfileApis.updateProfile(dataUser?.id, {
+          fullName: dataProfile.fullName,
+          phone: dataProfile.phone,
+          CCCD: dataProfile.CCCD,
+        });
+        console.log('Cập nhật thành công', res);
+
+        if (res.status === 200) {
+          // await window.electron?.updateStorage({
+          //   fullName: dataProfile.fullName,
+          //   CCCD: dataProfile.CCCD,
+          //   phone: dataProfile.phone,
+          // });
+          notify('THÀNH CÔNG');
+        } else {
+          notify('THẤT BẠI, MÃ LỖI: #CPN-ACC-079');
+        }
+        return;
+      }
+
+      const res = await ProfileApis.createProfile({
+        ...dataProfile,
+        userId: parseInt(dataProfile.userId),
+      });
+      console.log(res);
+      if (res.status === 200) {
+        // noti
+        //update storage
+        await window.electron?.updateStorage({
+          fullName: dataProfile.fullName,
+          CCCD: dataProfile.CCCD,
+          phone: dataProfile.phone,
+        });
+        notify('THÀNH CÔNG');
+      } else {
+        notify('THẤT BẠI, MÃ LỖI: #CPN-ACC-099');
+      }
+
+      // await ProfileApis.createProfile({});
+    },
+    [dataProfile]
+  );
 
   const [showModal, setShowModal] = useState(false);
+  console.log(dataUser);
 
   useEffect(() => {
     setShowModal(true);
   }, []);
 
   // Danh hiệu mẫu, màu đơn giản, quyền lực cao màu đậm hơn
-  const badges = [
-    {
-      label: 'CHỦ TỊCH NƯỚC',
-      color: 'bg-red-700 text-white',
-      icon: <FaCrown className="mr-1 inline" />,
-    },
-    {
-      label: 'THỦ TƯỚNG',
-      color: 'bg-blue-700 text-white',
-      icon: <FaUserSecret className="mr-1 inline" />,
-    },
-    {
-      label: 'DEV',
-      color: 'bg-black text-[#00f0ff]',
-      icon: <FaUserEdit className="mr-1 inline" />,
-    },
-    {
-      label: 'DESIGN',
-      color: 'bg-yellow-300 text-yellow-900',
-      icon: <FaPaintBrush className="mr-1 inline" />,
-    },
-    {
-      label: 'NGƯỜI KỂ CHUYỆN',
-      color: 'bg-purple-700 text-white',
-      icon: <FaBookOpen className="mr-1 inline" />,
-    },
-    {
-      label: 'CÔNG DÂN',
-      color: 'bg-green-600 text-white',
-      icon: <FaUserTie className="mr-1 inline" />,
-    },
-  ];
+  // const badges = [
+  //   {
+  //     label: 'CHỦ TỊCH NƯỚC',
+  //     color: 'bg-red-700 text-white',
+  //     icon: <Crown className="mr-1 inline" />,
+  //   },
+  //   {
+  //     label: 'THỦ TƯỚNG',
+  //     color: 'bg-blue-700 text-white',
+  //     icon: <FaUserSecret className="mr-1 inline" />,
+  //   },
+  //   {
+  //     label: 'DEV',
+  //     color: 'bg-black text-[#00f0ff]',
+  //     icon: <FaUserEdit className="mr-1 inline" />,
+  //   },
+  //   {
+  //     label: 'DESIGN',
+  //     color: 'bg-yellow-300 text-yellow-900',
+  //     icon: <FaPaintBrush className="mr-1 inline" />,
+  //   },
+  //   {
+  //     label: 'NGƯỜI KỂ CHUYỆN',
+  //     color: 'bg-purple-700 text-white',
+  //     icon: <FaBookOpen className="mr-1 inline" />,
+  //   },
+  //   {
+  //     label: 'CÔNG DÂN',
+  //     color: 'bg-green-600 text-white',
+  //     icon: <FaUserTie className="mr-1 inline" />,
+  //   },
+  // ];
+  // console.log(dataUser);
 
   return (
     <div className="flex w-full items-center justify-center backdrop-blur-md">
@@ -134,7 +196,7 @@ const AccountPage: React.FC<AccountProps> = ({ onSendProfile }) => {
               <div className="mb-2 text-left">
                 <div className="group flex items-center gap-x-2">
                   <h2 className="text-xl font-bold text-cyan-100">
-                    {dataUser?.name}
+                    {dataUser?.name.toUpperCase()}
                   </h2>
                 </div>
               </div>
@@ -142,30 +204,36 @@ const AccountPage: React.FC<AccountProps> = ({ onSendProfile }) => {
               <div className="flex flex-wrap items-center gap-2">
                 <span
                   className={`flex h-min w-max items-center gap-1 rounded-full px-3 py-1 font-semibold md:text-[10px] xl:text-xs ${
-                    dataUser?.isVerified
-                      ? 'bg-neon-blue/80 text-white'
-                      : 'bg-yellow-600/60 text-yellow-200'
+                    dataUser?.status == 'da_xu_ly'
+                      ? 'bg-green-600 text-white'
+                      : 'bg-yellow-600 text-yellow-200'
                   }`}
                 >
-                  {dataUser?.isVerified ? (
+                  {dataUser?.status == 'da_xu_ly' ? (
                     <>
-                      <FaCheckCircle className="mr-1 inline text-white" />
+                      <BadgeCheck
+                        size={19}
+                        className="mr-1 inline text-white"
+                      />
                       ĐÃ XÁC THỰC
                     </>
                   ) : (
                     <>
-                      <FaExclamationCircle className="mr-1 inline text-yellow-200" />
+                      <CircleAlert
+                        size={19}
+                        className="mr-1 inline text-yellow-200"
+                      />
                       CHƯA XÁC THỰC
                     </>
                   )}
                 </span>
-                {badges.map((badge) => (
+                {tagsRole.map((badge) => (
                   <span
-                    key={badge.label}
+                    key={badge?.label}
                     className={`flex items-center gap-1 rounded-full px-3 py-1 font-semibold shadow md:text-[10px] xl:text-xs ${badge.color}`}
                   >
-                    {badge.icon}
-                    {badge.label}
+                    {badge?.icon}
+                    {badge?.label}
                   </span>
                 ))}
               </div>
@@ -183,6 +251,7 @@ const AccountPage: React.FC<AccountProps> = ({ onSendProfile }) => {
                 {dataUser?.IDDevices &&
                   dataUser?.IDDevices.map((IDDevice: string) => (
                     <input
+                      key={IDDevice}
                       type="text"
                       value={IDDevice || ''}
                       readOnly
@@ -192,21 +261,22 @@ const AccountPage: React.FC<AccountProps> = ({ onSendProfile }) => {
               </div>
               <Field
                 label="SỐ CCCD"
-                value={dataUser?.CCCD ? dataUser.CCCD : dataProfile?.CCCD}
+                value={dataProfile?.CCCD}
                 name="CCCD"
+                read={dataUser?.status == 'da_xu_ly' ? true : false}
                 handleChangeInput={handleChangeInput}
               />
               <Field
                 label="HỌ VÀ TÊN"
-                value={
-                  dataUser?.fullName ? dataUser.fullName : dataProfile?.fullName
-                }
+                value={dataProfile?.fullName}
                 name="fullName"
+                read={dataUser?.status == 'da_xu_ly' ? true : false}
                 handleChangeInput={handleChangeInput}
               />
               <Field
                 label="SỐ ĐIỆN THOẠI"
-                value={dataUser?.phone ? dataUser.phone : dataProfile?.phone}
+                value={dataProfile?.phone}
+                read={dataUser?.status == 'da_xu_ly' ? true : false}
                 name="phone"
                 handleChangeInput={handleChangeInput}
               />
@@ -216,18 +286,19 @@ const AccountPage: React.FC<AccountProps> = ({ onSendProfile }) => {
             <div className="mb-6 h-px bg-cyan-900/40"></div>
 
             {/* Actions */}
-            <div className="grid gap-3">
-              {!dataUser?.isVerified && (
-                <button
-                  type="submit"
-                  onClick={onSendProfile}
-                  className="flex w-full items-center justify-center gap-2 rounded bg-gradient-to-r from-transparent via-[#00c6d4] to-transparent px-4 py-2 font-semibold text-white opacity-90 transition-all hover:opacity-100"
-                >
-                  <FaExclamationCircle className="text-white" />
-                  <span className="text-xs">GỬI HỒ SƠ XÁC THỰC</span>
-                </button>
-              )}
-            </div>
+            {!(dataUser?.status == 'da_xu_ly') && (
+              <div className="grid gap-3">
+                {!dataUser?.isVerified && (
+                  <button
+                    type="submit"
+                    onClick={onSendProfile}
+                    className="flex w-full items-center justify-center gap-2 rounded bg-gradient-to-r from-transparent via-[#00c6d4] to-transparent px-4 py-2 font-semibold text-white opacity-90 transition-all hover:opacity-100"
+                  >
+                    <span className="text-xs">GỬI HỒ SƠ XÁC THỰC</span>
+                  </button>
+                )}
+              </div>
+            )}
           </form>
         </div>
       </div>
@@ -239,11 +310,13 @@ const Field = ({
   label,
   value,
   name,
+  read = false,
   handleChangeInput,
 }: {
   label: string;
   value: string;
   name?: string;
+  read?: boolean;
   handleChangeInput?: (e: any) => void;
 }) => (
   <div className="rounded border border-cyan-800/30 p-3">
@@ -255,7 +328,7 @@ const Field = ({
       name={name}
       value={value || ''}
       onChange={handleChangeInput}
-      readOnly={!handleChangeInput}
+      readOnly={read}
       required={!!handleChangeInput}
       className="w-full border-none bg-transparent py-1 text-sm text-cyan-100 outline-none select-text placeholder:text-xs"
       placeholder="CHƯA CẬP NHẬT"

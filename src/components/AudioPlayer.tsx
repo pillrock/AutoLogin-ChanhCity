@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
+import { Volume2, VolumeX } from 'lucide-react';
 import backgroundMusic from '../assets/audio/background.mp3';
 
 const AudioPlayer: React.FC = () => {
@@ -45,7 +45,7 @@ const AudioPlayer: React.FC = () => {
       className="px-2 py-1 text-gray-400 transition-all duration-300 hover:text-white"
       onClick={handleAudioControl}
     >
-      {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
+      {isMuted ? <VolumeX size={19} /> : <Volume2 size={19} />}
     </button>
   );
 };

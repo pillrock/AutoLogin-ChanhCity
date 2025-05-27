@@ -1,6 +1,5 @@
 import React from 'react';
-import { FaUser } from 'react-icons/fa';
-
+import { CircleUser } from 'lucide-react';
 const Navbar = ({
   activeTab,
   setActiveTab,
@@ -36,7 +35,7 @@ const Navbar = ({
           <span className="text-green-500">+1</span>
         </div>
         <div className="from-neon-pink to-neon-purple ml-4 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r">
-          <FaUser className="text-white" />
+          <CircleUser className="text-white" />
         </div>
       </div>
     </nav>

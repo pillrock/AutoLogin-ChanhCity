@@ -1,4 +1,7 @@
 import { useEffect, useState } from 'react';
+import { ProfileApis } from '../apis';
+import { useNotification } from '../contexts/NotificationContext';
+import { useUser } from '../contexts/UserContext';
 export default function FooterHome({
   showBottomBar,
 }: {
@@ -7,7 +10,39 @@ export default function FooterHome({
   const [onlineUsers, setOnlineUsers] = useState(
     Math.floor(Math.random() * 201) + 1000
   );
+  const [statusValidAcc, setStasusValidAcc] = useState('');
+  const { notify } = useNotification();
+  const { userDataContext, status } = useUser();
+  useEffect(() => {
+    window.electron?.checkDataUser(async (locaData) => {
+      const profileRes = await ProfileApis.getProfileByUserId(locaData?.id);
+      const profile = profileRes?.data || {};
+      setStasusValidAcc(profile?.status || '');
+    });
+  }, [userDataContext]);
+  useEffect(() => {
+    console.log(
+      'THNAH__________________: ',
+      userDataContext,
+      status,
+      statusValidAcc
+    );
+  }, [userDataContext, statusValidAcc]);
 
+  const handleJoinServer = (e) => {
+    if (status != 'nothing') {
+      if (statusValidAcc === 'da_xu_ly') {
+        e.preventDefault();
+        window.electron?.shell.openExternal(
+          'fivem://connect/157.66.219.183:30120'
+        );
+        return;
+      }
+      notify('TÀI KHOẢN CHƯA XÁC THỰC');
+    } else {
+      notify('TÀI KHOẢN CHƯA XÁC THỰC');
+    }
+  };
   useEffect(() => {
     const interval = setInterval(() => {
       setOnlineUsers((prev) => {
@@ -51,16 +86,9 @@ export default function FooterHome({
       </div>
       <div className="flex flex-col items-end">
         <a
-          href="fivem://connect/g35qox"
-          target="_blank"
           rel="noopener noreferrer"
           className="group playnow mb-5 flex cursor-pointer flex-col items-center transition-all duration-200 hover:scale-[1.2] hover:rotate-[-20deg]"
-          onClick={(e) => {
-            e.preventDefault();
-            window.electron?.shell.openExternal(
-              'fivem://connect/157.66.219.183:30120'
-            );
-          }}
+          onClick={handleJoinServer}
         >
           <span className="font-medium text-gray-400 transition-all md:text-xs xl:text-lg">
             ĐÃ SẴN SÀNG

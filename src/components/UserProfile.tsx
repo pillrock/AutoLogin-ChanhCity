@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { FaUser } from 'react-icons/fa';
+import { User2Icon } from 'lucide-react';
 import AccountPage from './AccountPage';
+import { useUser } from '../contexts/UserContext';
 
 export interface UserData {
   name: string;
@@ -13,7 +14,7 @@ export interface UserData {
 export const UserProfile = ({ setActiveTab, handleTabChange }) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [showAccountModal, setShowAccountModal] = useState(false);
-
+  const { userDataContext, login, logout } = useUser();
   useEffect(() => {
     window.electron?.onGoogleToken((token: any) => {
       setUserData(token);
@@ -29,6 +30,9 @@ export const UserProfile = ({ setActiveTab, handleTabChange }) => {
       }
     });
   }, []);
+  useEffect(() => {
+    login(userData);
+  }, [userData]);
   // Dummy data bổ sung cho demo (bạn thay bằng dữ liệu thực tế)
   const fullUserData = {
     ...userData,
@@ -41,7 +45,7 @@ export const UserProfile = ({ setActiveTab, handleTabChange }) => {
     <div className="relative ml-[1rem]">
       {!userData ? (
         <span className="group flex aspect-square cursor-pointer items-center rounded-full border-[1px] border-gray-300 px-2 py-1">
-          <FaUser />
+          <User2Icon size={19} />
           {/* MODAL */}
           <div className="absolute top-[30%] right-0 h-[5rem] w-[10rem] translate-y-0 rounded-xl bg-black/20 opacity-0 transition-all delay-100 duration-200 group-hover:pointer-events-auto group-hover:translate-y-6 group-hover:opacity-100">
             <button
@@ -119,10 +123,25 @@ export const UserProfile = ({ setActiveTab, handleTabChange }) => {
                 </p>
                 <span className="bg-neon-blue absolute bottom-0 left-0 h-[2px] w-0 transition-all duration-300 group-hover/button:w-full" />
               </button>
+              {userDataContext?.isAdmin && (
+                <button
+                  className="group/button relative flex w-full cursor-pointer items-center gap-x-2 p-3"
+                  onClick={() => {
+                    setActiveTab('ADMIN');
+                    handleTabChange('ADMIN');
+                  }}
+                >
+                  <p className="text-[10px] font-semibold text-gray-300 group-hover/button:text-white">
+                    ADMIN
+                  </p>
+                  <span className="bg-neon-blue absolute bottom-0 left-0 h-[2px] w-0 transition-all duration-300 group-hover/button:w-full" />
+                </button>
+              )}
               <button
                 onClick={() => {
                   setUserData(null);
                   window.electron.ipcRenderer.invoke('remove-user-data');
+                  logout();
                 }}
                 className="group/button relative flex w-full cursor-pointer items-center gap-x-2 p-3"
               >
