@@ -13,5 +13,7 @@ export const updateProfile = async (
   userId: number,
   data: { fullName: string; CCCD: string; phone: string }
 ) => {
-  return await api.put(`/profiles/${userId}`, data, {});
+  return await api.put(`/profiles/${userId}`, data, {
+    userId: userId.toString(),
+  });
 };
