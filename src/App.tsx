@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaWindowMinimize, FaTimes, FaSquare } from 'react-icons/fa';
+import { Minus, Square, X } from 'lucide-react';
 import './index.css';
 import UserProfile, { UserData } from './components/UserProfile';
 import { animate, createSpring } from 'animejs';
@@ -14,6 +14,8 @@ import AudioPlayer from './components/AudioPlayer';
 import FooterHome from './components/FooterHome';
 import AccountPage from './components/AccountPage';
 import { list } from 'postcss';
+import { useUser } from './contexts/UserContext';
+import AdminPage from './components/admin/AdminPage';
 
 declare global {
   interface Window {
@@ -27,6 +29,7 @@ const ListPages = {
   server: 'MÁY CHỦ',
   tutorial: 'HƯỚNG DẪN',
   account: 'TÀI KHOẢN',
+  admin: 'ADMIN',
 };
 const ActionWindowControl = {
   minimize: 'minimize',
@@ -41,10 +44,16 @@ function App() {
   const [showContent, setShowContent] = useState(true);
   const [showBottomBar, setShowBottomBar] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
-
+  const { login } = useUser();
   // User state
-  const [userData, setUserData] = useState<UserData | null>(null);
-
+  useEffect(() => {
+    window.electron?.checkDataUser(async (locaData: any) => {
+      if (locaData) {
+        login(locaData);
+      }
+    });
+  }, []);
+  const { userDataContext } = useUser();
   // Handle tab change with loading animation
   const handleTabChange = (tab: string) => {
     if (tab === activeTab) return;
@@ -83,20 +92,22 @@ function App() {
         return <RoadmapPage />;
       case ListPages.account:
         return (
-          <AccountPage
-            onLogout={() => {
-              setUserData(null);
-              setActiveTab(ListPages.home);
-              window.electron?.ipcRenderer.invoke('remove-user-data');
-            }}
-            onUpdateName={(name) => {
-              setUserData((prev) => (prev ? { ...prev, name } : prev));
-            }}
-            onSendProfile={() => {
-              // Xử lý gửi hồ sơ xác thực
-            }}
-          />
+          <>
+            {userDataContext && (
+              <AccountPage
+                onLogout={() => {
+                  setActiveTab(ListPages.home);
+                  window.electron?.ipcRenderer.invoke('remove-user-data');
+                }}
+                onSendProfile={() => {
+                  // Xử lý gửi hồ sơ xác thực
+                }}
+              />
+            )}
+          </>
         );
+      case ListPages.admin:
+        return <>{userDataContext?.isAdmin && <AdminPage />}</>;
       default:
         return <HomePage />;
     }
@@ -150,7 +161,6 @@ function App() {
       handleWindowControl('maximize');
     }
   };
-
   // CSS classes
   const getDragClass = () => {
     return isFullscreen ? '' : 'app-region-drag';
@@ -184,7 +194,7 @@ function App() {
             handleWindowControl(ActionWindowControl.minimize);
           }}
         >
-          <FaWindowMinimize />
+          <Minus size={19} />
         </button>
         <button
           className="px-2 py-1 text-gray-400 hover:text-white"
@@ -192,7 +202,7 @@ function App() {
             handleWindowControl(ActionWindowControl.maximize);
           }}
         >
-          <FaSquare />
+          <Square size={19} />
         </button>
         <button
           className="px-2 py-1 text-gray-400 hover:text-red-500"
@@ -200,7 +210,7 @@ function App() {
             handleWindowControl(ActionWindowControl.close);
           }}
         >
-          <FaTimes />
+          <X size={19} />
         </button>
       </div>
       {/* Container chính */}
@@ -248,27 +258,30 @@ function App() {
                   />
                 </g>
               </svg>
+
               <div className="flex items-center md:space-x-2 xl:space-x-4">
-                {Object.entries(ListPages).map(([key, value]) => (
-                  <button
-                    key={value}
-                    className={`font-cyber ${key === 'account' && 'hidden'} relative overflow-hidden transition-all duration-300 ease-in-out md:px-2 md:py-1 md:text-sm xl:px-4 xl:py-2 xl:text-base ${
-                      activeTab === value
-                        ? 'text-neon-blue'
-                        : 'text-white/60 hover:text-white'
-                    } app-region-no-drag group`}
-                    onClick={() => handleTabChange(value)}
-                  >
-                    <span className="relative z-10">{value}</span>
-                    {activeTab === value && (
-                      <>
-                        <div className="bg-neon-blue absolute bottom-0 left-0 h-0.5 w-full animate-pulse"></div>
-                        <div className="bg-neon-blue/10 absolute inset-0 rounded-lg"></div>
-                      </>
-                    )}
-                    <div className="bg-neon-blue absolute bottom-0 left-0 h-0.5 w-0 transition-all duration-300 group-hover:w-full"></div>
-                  </button>
-                ))}
+                {Object.entries(ListPages).map(([key, value]) => {
+                  return (
+                    <button
+                      key={value}
+                      className={`font-cyber ${key === 'admin' && 'hidden'} ${key === 'account' && 'hidden'} relative overflow-hidden transition-all duration-300 ease-in-out md:px-2 md:py-1 md:text-sm xl:px-4 xl:py-2 xl:text-base ${
+                        activeTab === value
+                          ? 'text-neon-blue'
+                          : 'text-white/60 hover:text-white'
+                      } app-region-no-drag group`}
+                      onClick={() => handleTabChange(value)}
+                    >
+                      <span className="relative z-10">{value}</span>
+                      {activeTab === value && (
+                        <>
+                          <div className="bg-neon-blue absolute bottom-0 left-0 h-0.5 w-full animate-pulse"></div>
+                          <div className="bg-neon-blue/10 absolute inset-0 rounded-lg"></div>
+                        </>
+                      )}
+                      <div className="bg-neon-blue absolute bottom-0 left-0 h-0.5 w-0 transition-all duration-300 group-hover:w-full"></div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
             <UserProfile
@@ -296,7 +309,8 @@ function App() {
           )}
 
           {/* FOOTER HOME */}
-          <FooterHome showBottomBar={showBottomBar} />
+
+          {showBottomBar && <FooterHome showBottomBar={showBottomBar} />}
         </div>
       </div>
     </div>
