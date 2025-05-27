@@ -51,6 +51,26 @@ import { getUserDevices } from './users_devices/getUserDevices';
 import { getUsersByDevice } from './users_devices/getUsersByDevice';
 import { updateUserDevice } from './users_devices/updateUserDevice';
 
+// PROFILES_ROLES API
+import { createProfileRole } from './profiles_roles/createProfileRole';
+import { deleteProfileRole } from './profiles_roles/deleteProfileRole';
+import { getProfileRoleById } from './profiles_roles/getProfileRoleById';
+import { getProfileRoles } from './profiles_roles/getProfileRoles';
+import { getProfilesByRole } from './profiles_roles/getProfilesByRole';
+import { getRolesByProfile } from './profiles_roles/getRolesByProfile';
+import { updateProfileRole } from './profiles_roles/updateProfileRole';
+
+export const Profiles_Roles_apis = {
+  createProfileRole,
+  deleteProfileRole,
+  getProfileRoleById,
+  getProfileRoles,
+  getProfilesByRole,
+  getRolesByProfile,
+  updateProfileRole,
+};
+
+// USERS_DEVICES API
 export const Users_Devices_apis = {
   createUserDevice,
   deleteUserDevice,
